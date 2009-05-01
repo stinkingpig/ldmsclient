@@ -1,0 +1,31 @@
+#!C:\Program Files\ActiveState Perl Dev Kit 6.0 Deployment\bin\lib\pai.exe
+PAP-Version: 1.0
+Packer: C:\Program Files\ActiveState Perl Dev Kit 6.0 Deployment\bin\perlapp.exe
+Script: ldms_netstat.pl
+Cwd: C:\Documents and Settings\Jack Coates\My Documents\code\ldms_netstat
+Clean: 0
+Date: 2006-09-12 14:13:10
+Debug: 
+Dependent: 0
+Dyndll: 0
+Exe: ldms_netstat.exe
+Force: 0
+Gui: 0
+Hostname: geode
+No-Compress: 0
+No-Logo: 0
+Runlib: 
+Shared: none
+Tmpdir: 
+Verbose: 0
+Version-Comments: released under the GPL
+Version-CompanyName: Monkeynoodle.Org
+Version-FileDescription: Insert Netstat information into LANDesk Management Suite
+Version-FileVersion: 1.0
+Version-InternalName: LDMS_NETSTAT
+Version-LegalCopyright: Jack Coates, 2006
+Version-LegalTrademarks: 
+Version-OriginalFilename: ldms_netstat.pl
+Version-ProductName: LDMS_NETSTAT
+Version-ProductVersion: 1.0
+Xclude: 0

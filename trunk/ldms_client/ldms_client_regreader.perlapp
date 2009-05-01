@@ -1,0 +1,33 @@
+#!C:\Program Files\ActiveState Perl Dev Kit 7.3 Deployment\bin\lib\pai.exe
+PAP-Version: 1.0
+Packer: C:\Program Files\ActiveState Perl Dev Kit 7.3 Deployment\bin\perlapp.exe
+Script: ldms_client_regreader.pl
+Cwd: C:\Documents and Settings\Jack Coates\My Documents\code\ldms_client
+Clean: 0
+Date: 2009-01-12 10:00:56
+Debug: 
+Dependent: 0
+Dyndll: 0
+Exe: ldms_client_regreader.exe
+Force: 1
+Gui: 0
+Hostname: geode
+Icon: desktop.ico
+No-Compress: 0
+No-Logo: 0
+Runlib: 
+Shared: none
+Tmpdir: 
+Verbose: 0
+Version-Comments: Monkeynoodle: It's A Scientific Venture!
+Version-CompanyName: Monkeynoodle.Org
+Version-FileDescription: Helper application for ldms_client
+Version-FileVersion: 2.3.5
+Version-InternalName: ldms_client_regreader
+Version-LegalCopyright: (c) 2008, Jack Coates <jack@monkeynoodle.org>
+Version-LegalTrademarks: 
+Version-OriginalFilename: ldms_client_regreader
+Version-ProductName: ldms_client_regreader
+Version-ProductVersion: 2.3.5
+Warnings: 0
+Xclude: 0

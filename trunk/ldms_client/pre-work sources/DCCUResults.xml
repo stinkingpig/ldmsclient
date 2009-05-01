@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<root>
+
+	<command name="get">
+		<property name="WakeupOnLAN" ischecked="1" value="6" outcome="OK" errorcode="0x0"/>
+	</command>
+
+
+
+</root>

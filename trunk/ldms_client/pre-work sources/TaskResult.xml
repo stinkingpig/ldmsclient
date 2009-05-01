@@ -1,0 +1,198 @@
+<root>
+	<command name="Inventory">
+		<property name="SS.ExtensionTokens" value="1099511627771" errorcode="0x0"/>
+		<property name="SS.NumberOfBootDevices" value="8" errorcode="0x0"/>
+		<property name="Memory.Size" value="3135536" errorcode="0x0"/>
+		<property name="OperatingSystem.Caption" value="Microsoft Windows XP Professional" errorcode="0x0"/>
+		<property name="BS.BootOrder" value="1" errorcode="0x0"/>
+		<property name="BS.BootDeviceName" value="Diskette Drive" errorcode="0x0"/>
+		<property name="BS.Status" value="1" errorcode="0x0"/>
+		<property name="BS.BootOrder" value="2" errorcode="0x0"/>
+		<property name="BS.BootDeviceName" value="Internal HDD" errorcode="0x0"/>
+		<property name="BS.Status" value="1" errorcode="0x0"/>
+		<property name="BS.BootOrder" value="3" errorcode="0x0"/>
+		<property name="BS.BootDeviceName" value="USB Storage Device" errorcode="0x0"/>
+		<property name="BS.Status" value="1" errorcode="0x0"/>
+		<property name="BS.BootOrder" value="4" errorcode="0x0"/>
+		<property name="BS.BootDeviceName" value="CD/DVD/CD-RW Drive" errorcode="0x0"/>
+		<property name="BS.Status" value="1" errorcode="0x0"/>
+		<property name="BS.BootOrder" value="5" errorcode="0x0"/>
+		<property name="BS.BootDeviceName" value="Modular Bay HDD" errorcode="0x0"/>
+		<property name="BS.Status" value="0" errorcode="0x0"/>
+		<property name="BS.BootOrder" value="6" errorcode="0x0"/>
+		<property name="BS.BootDeviceName" value="Cardbus NIC" errorcode="0x0"/>
+		<property name="BS.Status" value="0" errorcode="0x0"/>
+		<property name="BS.BootOrder" value="7" errorcode="0x0"/>
+		<property name="BS.BootDeviceName" value="D/Dock PCI slot NIC" errorcode="0x0"/>
+		<property name="BS.Status" value="0" errorcode="0x0"/>
+		<property name="BS.BootOrder" value="8" errorcode="0x0"/>
+		<property name="BS.BootDeviceName" value="Onboard NIC" errorcode="0x0"/>
+		<property name="BS.Status" value="0" errorcode="0x0"/>
+		<property name="PWR.AC power recovery mode" value="2" errorcode="0x0"/>
+		<property name="PWR.AutoOn" value="3" errorcode="0x0"/>
+		<property name="PWR.AutoOnHour" value="8" errorcode="0x0"/>
+		<property name="PWR.AutoOnMinute" value="0" errorcode="0x0"/>
+		<property name="PWR.CoolAndQuiet" value="2" errorcode="0x0"/>
+		<property name="PWR.CPUVirtualization" value="4" errorcode="0x0"/>
+		<property name="PWR.HardDiskAcousticMode" value="3" errorcode="0x0"/>
+		<property name="PWR.Hyperthreading" value="3" errorcode="0x0"/>
+		<property name="PWR.LowPowerS5" value="2" errorcode="0x0"/>
+		<property name="PWR.MultiCore" value="2" errorcode="0x0"/>
+		<property name="PWR.PowerManagementSettings" value="2" errorcode="0x0"/>
+		<property name="PWR.SingleCoreTurboMode" value="2" errorcode="0x0"/>
+		<property name="PWR.SpeedStep" value="3" errorcode="0x0"/>
+		<property name="PWR.UARTPowerDown" value="2" errorcode="0x0"/>
+		<property name="PWR.WakeupOnLAN" value="6" errorcode="0x0"/>
+		<property name="PWR.WakeupOnLANMethod" value="3" errorcode="0x0"/>
+		<property name="PWR.ExpressCharge" value="2" errorcode="0x0"/>
+		<property name="PWR.Charger" value="2" errorcode="0x0"/>
+		<property name="PWR.SuspendMode" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.AGPSlot" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.BuiltinNIC" value="3" errorcode="0x0"/>
+		<property name="OnBoardDevices.BuiltinFloppy" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.BuiltinNIC2" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.BuiltinPointingDevice" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.IntegratedAudio" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.InternalMiniPCI" value="4" errorcode="0x0"/>
+		<property name="OnBoardDevices.MediaCardAnd1394" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.Microphone" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.Onboard1394" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.OnboardModem" value="3" errorcode="0x0"/>
+		<property name="OnBoardDevices.ParallelPortConfiguration" value="4" errorcode="0x0"/>
+		<property name="OnBoardDevices.ParallelPortMode" value="5" errorcode="0x0"/>
+		<property name="OnBoardDevices.PCCard" value="3" errorcode="0x0"/>
+		<property name="OnBoardDevices.PCCardAnd1394" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.PCISlots" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.SerialPort1Configuration" value="5" errorcode="0x0"/>
+		<property name="OnBoardDevices.SerialPort2Configuration" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.SmartCardReader" value="2" errorcode="0x0"/>
+		<property name="OnBoardDevices.TabletButtons" value="2" errorcode="0x0"/>
+		<property name="Wireless.BluetoothDevices" value="3" errorcode="0x0"/>
+		<property name="Wireless.CellularRadio" value="4" errorcode="0x0"/>
+		<property name="Wireless.RadioTransmission" value="2" errorcode="0x0"/>
+		<property name="Wireless.WiFiCatcherChanges" value="4" errorcode="0x0"/>
+		<property name="Wireless.WiFiLocator" value="3" errorcode="0x0"/>
+		<property name="Wireless.WirelessDevice" value="0" errorcode="0x0"/>
+		<property name="Wireless.WirelessLAN" value="3" errorcode="0x0"/>
+		<property name="Wireless.WirelessSwitchBluetoothControl" value="4" errorcode="0x0"/>
+		<property name="Wireless.WirelessSwitchCellularControl" value="3" errorcode="0x0"/>
+		<property name="Wireless.WirelessSwitchChanges" value="4" errorcode="0x0"/>
+		<property name="Wireless.WirelessSwitchWirelessLANControl" value="3" errorcode="0x0"/>
+		<property name="Security.ChassisIntrusion" value="5" errorcode="0x0"/>
+		<property name="Security.ChassisIntrusionStatus" value="4" errorcode="0x0"/>
+		<property name="Security.NoExecute" value="4" errorcode="0x0"/>
+		<property name="Security.PasswordBypass" value="3" errorcode="0x0"/>
+		<property name="Security.TrustedPlatformModule" value="4" errorcode="0x0"/>
+		<property name="Security.TrustedPlatformModuleActivation" value="2" errorcode="0x0"/>
+		<property name="Drives.ESataPorts" value="2" errorcode="0x0"/>
+		<property name="Drives.IDEController" value="3" errorcode="0x0"/>
+		<property name="Drives.IntegratedRAIDController" value="2" errorcode="0x0"/>
+		<property name="Drives.IntegratedSASController" value="2" errorcode="0x0"/>
+		<property name="Drives.IntegratedSATAController" value="2" errorcode="0x0"/>
+		<property name="Drives.ParallelATAChannel0" value="0" errorcode="0x0"/>
+		<property name="Drives.ParallelATAChannel1" value="0" errorcode="0x0"/>
+		<property name="Drives.ParallelATAChannel2" value="0" errorcode="0x0"/>
+		<property name="Drives.ParallelATAChannel3" value="0" errorcode="0x0"/>
+		<property name="Drives.ParallelATAChannel4" value="0" errorcode="0x0"/>
+		<property name="Drives.ParallelATAChannel5" value="0" errorcode="0x0"/>
+		<property name="Drives.SerialATAChannel0" value="0" errorcode="0x0"/>
+		<property name="Drives.SerialATAChannel1" value="0" errorcode="0x0"/>
+		<property name="Drives.SerialATAChannel2" value="0" errorcode="0x0"/>
+		<property name="Drives.SerialATAChannel3" value="0" errorcode="0x0"/>
+		<property name="Drives.SerialATAChannel4" value="0" errorcode="0x0"/>
+		<property name="Drives.SerialATAChannel5" value="0" errorcode="0x0"/>
+		<property name="Drives.SerialATAChannel6" value="0" errorcode="0x0"/>
+		<property name="Drives.SerialATAChannel7" value="0" errorcode="0x0"/>
+		<property name="Discovery.Manufacturer" value="Dell Inc." errorcode="0x0"/>
+		<property name="Discovery.Model" value="Latitude D620                   " errorcode="0x0"/>
+		<property name="Configuration.MaximumPasswordLength" value="8" errorcode="0x0"/>
+		<property name="Configuration.PasswordStatusLockUnlock" value="2" errorcode="0x0"/>
+		<property name="Configuration.PasswordVerification" value="4" errorcode="0x0"/>
+		<property name="Configuration.SMBIOSSupported" value="1" errorcode="0x0"/>
+		<property name="Configuration.SystemIDByte" value="450" errorcode="0x0"/>
+		<property name="Configuration.PropertyOwnershipTag" value="                                                                                " errorcode="0x0"/>
+		<property name="Configuration.Password" value="" errorcode="0x80004005"/>
+		<property name="MTN.ASFMode" value="2" errorcode="0x0"/>
+		<property name="MTN.AudioMode" value="2" errorcode="0x0"/>
+		<property name="MTN.BootSequence" value="2" errorcode="0x0"/>
+		<property name="MTN.Enable/Disable BIS" value="2" errorcode="0x0"/>
+		<property name="MTN.Force PXE on next boot" value="2" errorcode="0x0"/>
+		<property name="MTN.HardDiskFailover" value="2" errorcode="0x0"/>
+		<property name="MTN.HotDocking" value="4" errorcode="0x0"/>
+		<property name="MTN.Infrared" value="1" errorcode="0x0"/>
+		<property name="MTN.LimitCPUIDValue" value="2" errorcode="0x0"/>
+		<property name="MTN.ModuleBayDevice" value="2" errorcode="0x0"/>
+		<property name="MTN.MonitorToggling" value="2" errorcode="0x0"/>
+		<property name="MTN.NMIButton" value="2" errorcode="0x0"/>
+		<property name="MTN.NodeInterleave" value="2" errorcode="0x0"/>
+		<property name="MTN.OSInstallMode" value="2" errorcode="0x0"/>
+		<property name="MTN.PenMissingIndication" value="2" errorcode="0x0"/>
+		<property name="MTN.PenResumeOn" value="2" errorcode="0x0"/>
+		<property name="MTN.SafeUSB" value="2" errorcode="0x0"/>
+		<property name="MTN.SATADIPM" value="3" errorcode="0x0"/>
+		<property name="MTN.SerialCommunication" value="3" errorcode="0x0"/>
+		<property name="MTN.SERRDMIMessage" value="2" errorcode="0x0"/>
+		<property name="MTN.SingleByteECCLogging" value="2" errorcode="0x0"/>
+		<property name="MTN.SMARTErrors" value="2" errorcode="0x0"/>
+		<property name="MTN.SpeakerVolume" value="2" errorcode="0x0"/>
+		<property name="MTN.VTforDirectIO" value="2" errorcode="0x0"/>
+		<property name="POST.ExternalHotkey" value="3" errorcode="0x0"/>
+		<property name="POST.FastBoot" value="4" errorcode="0x0"/>
+		<property name="POST.Keyboard error reporting" value="2" errorcode="0x0"/>
+		<property name="POST.KeyboardIllumination" value="2" errorcode="0x0"/>
+		<property name="POST.Keypad" value="2" errorcode="0x0"/>
+		<property name="POST.NumLock" value="3" errorcode="0x0"/>
+		<property name="POST.PointingDevice" value="5" errorcode="0x0"/>
+		<property name="POST.POSTF12KeySetting" value="2" errorcode="0x0"/>
+		<property name="POST.POSTF2KeySetting" value="2" errorcode="0x0"/>
+		<property name="POST.POSTHelpDeskKeySetting" value="2" errorcode="0x0"/>
+		<property name="POST.POSTMEBxKeySetting" value="2" errorcode="0x0"/>
+		<property name="POST.USBEmulation" value="4" errorcode="0x0"/>
+		<property name="SS.BIOSDate" value="2007-04-03T00:00:00" errorcode="0x0"/>
+		<property name="SS.BIOSVersion" value="A08" errorcode="0x0"/>
+		<property name="SS.SystemName" value="ny-go-2787a" errorcode="0x0"/>
+		<property name="SS.PowerMgtSupported" value="5" errorcode="0x0"/>
+		<property name="SS.Status" value="" errorcode="0x8004100E"/>
+		<property name="SS.ServiceTag" value="CLSL1D1" errorcode="0x0"/>
+		<property name="SS.SystemDescription" value="Latitude D620                   " errorcode="0x0"/>
+		<property name="SS.SystemVendor" value="Dell Inc." errorcode="0x0"/>
+		<property name="SS.ProcessorType" value="185" errorcode="0x0"/>
+		<property name="SS.ProcessorSpeed" value="1833" errorcode="0x0"/>
+		<property name="SS.SystemClass" value="6" errorcode="0x0"/>
+		<property name="SS.AssetTag" value="" errorcode="0x0"/>
+		<property name="SS.ManufacturerDate" value="" errorcode="0x8004100E"/>
+		<property name="Video.AmbientLightSensor" value="4" errorcode="0x0"/>
+		<property name="Video.PrimaryVideo" value="4" errorcode="0x0"/>
+		<property name="Video.VideoMemorySize" value="2" errorcode="0x0"/>
+		<property name="Video.VGA DAC snoop" value="2" errorcode="0x0"/>
+		<property name="Video.VideoExpansion" value="3" errorcode="0x0"/>
+		<property name="USB.IntegratedUSBHub" value="3" errorcode="0x0"/>
+		<property name="USB.USBFrontPanelPorts" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort00" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort01" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort02" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort03" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort04" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort05" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort06" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort07" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort08" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort09" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort10" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort11" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort12" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort13" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort14" value="2" errorcode="0x0"/>
+		<property name="USB.USBPort15" value="2" errorcode="0x0"/>
+		<property name="USB.USBPorts" value="2" errorcode="0x0"/>
+		<property name="USB.USBPortsExternal" value="3" errorcode="0x0"/>
+		<property name="USB.USBRearDual" value="2" errorcode="0x0"/>
+		<property name="USB.USBRearQuad" value="2" errorcode="0x0"/>
+		<property name="USB.USBFlashDriveEmulation" value="2" errorcode="0x0"/>
+		<property name="USB.USBPortsUserAccessible" value="2" errorcode="0x0"/>
+		<property name="USB.USBWake" value="4" errorcode="0x0"/>
+	</command>
+	<command name="inventory">
+		<property name="task" value="Succeeded." errorcode="0x0"/>
+	</command>
+</root>

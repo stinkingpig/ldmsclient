@@ -1,0 +1,11 @@
+ldms_client.exe -- reads .ini file from core to decide which subroutines to run. Output is written to a custom data form.
+	debug mode does the usual, logging to event viewer
+	idea to evaluate: setup mode installs ldscnhlp.ini changes?
+
+ldms_client_core.exe -- writes .ini file for core to provide.
+	debug mode does the usual, logging to event viewer
+idea to evaluate: setup mode creates policy job to push ldms_client.exe and the required ldscnhlp.ini changes?
+
+upgrade sensitivity: client senses that it needs an upgrade by reading an upgrade section on the core's ldms_client.ini file. Would be cool if core app shows an optional "make upgrade available line" that allows clients to auto-download? Nah. I don't want to be generating tasks in LDMS at this point, and calling it with sdclient is potentially confusing. Best to give a warning message for now.
+
+Still, we can't have it downloading options that don't exist, so... I could do an area per version, but that will get sloppy quick. I could do a "ignore options file if version is higher than mine?" That's fraught with peril. At this point, I'll leave it specifically looking for options, that way it will ignore new things.

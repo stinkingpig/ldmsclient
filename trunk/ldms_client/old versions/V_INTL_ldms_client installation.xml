@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+<Vulnerability xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Lang="INTL" Vul_ID="ldms_client installation" CVE_ID="" T="4" Revision="12">
+  <Status>Enabled</Status>
+  <Title>Install the ldms_client inventory extension tool</Title>
+  <Description>ldms_client is a centrally managed inventory extension tool.</Description>
+  <Patches>
+    <Patch Download="DAuto" Silent="CRSYes" Reboot="RNo" UniqueFilename="ldms_client_mac.zip" Hash="" Size="0">
+      <Name>ldms_client for mac platforms</Name>
+      <Advanced>
+        <DetectScript />
+        <DetectScriptDescription />
+      </Advanced>
+      <Comments />
+      <URL>http://geode/ldlogon/packages/ldms_client_mac.zip</URL>
+      <State>Enabled</State>
+      <Files>
+        <File>
+          <Path>/Library/Application\ Support/LANDesk/ldms_client_mac</Path>
+          <FileDate>0001-01-01T00:00:00</FileDate>
+          <FileSize>0</FileSize>
+          <Checksum />
+          <Version>1.4</Version>
+          <CommandID>c</CommandID>
+          <Flags />
+        </File>
+      </Files>
+      <RegKeys />
+      <Products />
+      <Platforms>
+        <ID>MacOSX</ID>
+        <ID>MacOSXServer</ID>
+      </Platforms>
+      <UninstallInfo>
+        <canBeUninstalled>false</canBeUninstalled>
+        <requiresOriginalPatch>false</requiresOriginalPatch>
+        <Files />
+        <RegKeys />
+        <Cmds />
+      </UninstallInfo>
+      <CustVars />
+      <Cmds>
+        <Cmd Type="Unzip">
+          <Args>
+            <Arg N="dest" V="/Library/Application\ Support/LANDesk" />
+            <Arg N="source" V="%SDMCACHE%%PATCHFILENAME%" />
+          </Args>
+        </Cmd>
+      </Cmds>
+    </Patch>
+    <Patch Download="DAuto" Silent="CRSYes" Reboot="RNo" UniqueFilename="ldms_client_deploy.zip" Hash="gtASryJBD1i0S2kB7Vki0w==" Size="3582224">
+      <Name>ldms_client for windows platforms</Name>
+      <Advanced>
+        <DetectScript />
+        <DetectScriptDescription />
+      </Advanced>
+      <Comments />
+      <URL>http://geode/ldlogon/packages/ldms_client_deploy.zip</URL>
+      <State>Enabled</State>
+      <Files>
+        <File>
+          <Path>%ProgramFiles%\LANDesk\LDClient\ldms_client.exe</Path>
+          <FileDate>0001-01-01T00:00:00</FileDate>
+          <FileSize>0</FileSize>
+          <Checksum />
+          <Version>1.2</Version>
+          <CommandID>c</CommandID>
+          <Flags />
+        </File>
+      </Files>
+      <RegKeys />
+      <Products>
+        <ID>LANDesk_Client_88</ID>
+        <ID>LANDesk_Client_87</ID>
+        <ID>LANDesk_Client_87SP1</ID>
+        <ID>LANDesk_Client_87SP2</ID>
+        <ID>LANDesk_Client_87SP3</ID>
+        <ID>LANDesk_Client_87SP4</ID>
+        <ID>LANDesk_Client_87SP5</ID>
+        <ID>LANDesk_Client_88SP1</ID>
+      </Products>
+      <Platforms>
+        <ID>winnt</ID>
+        <ID>winxp</ID>
+        <ID>win2k3</ID>
+        <ID>win9x</ID>
+        <ID>win2k</ID>
+        <ID>winvista</ID>
+        <ID>winxp-x64</ID>
+        <ID>win2k3-x64</ID>
+        <ID>winvista-x64</ID>
+        <ID>win98</ID>
+        <ID>winxp-64</ID>
+        <ID>winvisita</ID>
+      </Platforms>
+      <UninstallInfo>
+        <canBeUninstalled>false</canBeUninstalled>
+        <requiresOriginalPatch>false</requiresOriginalPatch>
+        <Files />
+        <RegKeys />
+        <Cmds />
+      </UninstallInfo>
+      <CustVars />
+      <Cmds>
+        <Cmd Type="Unzip">
+          <Args>
+            <Arg N="dest" V="%TempDir%" />
+            <Arg N="source" V="%SDMCACHE%%PATCHFILENAME%" />
+          </Args>
+        </Cmd>
+        <Cmd Type="Copy">
+          <Args>
+            <Arg N="dest" V="%PROGRAMFILES%\LANDesk\LDClient\" />
+            <Arg N="source" V="%TempDir%\ldms_client.exe" />
+          </Args>
+        </Cmd>
+        <Cmd Type="Copy">
+          <Args>
+            <Arg N="dest" V="%PROGRAMFILES%\landesk\ldclient\ldscnhlp.ini.old" />
+            <Arg N="source" V="%PROGRAMFILES%\landesk\ldclient\ldscnhlp.ini" />
+          </Args>
+        </Cmd>
+        <Cmd Type="Copy">
+          <Args>
+            <Arg N="dest" V="%PROGRAMFILES%\landesk\ldclient\" />
+            <Arg N="source" V="%TempDir%\ldscnhlp.ini" />
+          </Args>
+        </Cmd>
+      </Cmds>
+    </Patch>
+  </Patches>
+  <DependsOn />
+  <PublishDate>2008-04-24T00:00:00</PublishDate>
+  <Summary />
+  <Severity>4</Severity>
+  <Vendor>custom</Vendor>
+  <MoreInfoURL>http://www.droppedpackets.org/inventory-and-slm/ldms_client/</MoreInfoURL>
+  <FAQURL />
+  <Type>Custom</Type>
+  <Category />
+  <AssociatedProducts>
+    <prod Prod_ID="LANDesk_Client_87" Revision="4">
+      <Name>LANDesk 8.7 Client</Name>
+      <Vendor>LANDesk</Vendor>
+      <Version />
+      <Custom>false</Custom>
+      <DetectedByFiles>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\ldiscn32.exe</filename>
+          <minVersion>8.70.0.0</minVersion>
+          <maxVersion>8.70.4.9999</maxVersion>
+        </File>
+      </DetectedByFiles>
+      <DetectedByRegs />
+      <Advanced>
+        <DetectScript />
+      </Advanced>
+      <DetectedByRPMs />
+      <DetectedByBundles />
+    </prod>
+    <prod Prod_ID="LANDesk_Client_87SP1" Revision="1">
+      <Name>LANDesk 8.7 SP1 Client</Name>
+      <Vendor>LANDesk</Vendor>
+      <Version />
+      <Custom>false</Custom>
+      <DetectedByFiles>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\ldiscn32.exe</filename>
+          <minVersion>8.70.5.0</minVersion>
+          <maxVersion>8.70.5.9999</maxVersion>
+        </File>
+      </DetectedByFiles>
+      <DetectedByRegs />
+      <Advanced>
+        <DetectScript />
+      </Advanced>
+      <DetectedByRPMs />
+      <DetectedByBundles />
+    </prod>
+    <prod Prod_ID="LANDesk_Client_87SP2" Revision="2">
+      <Name>LANDesk 8.7 SP2 Client</Name>
+      <Vendor>LANDesk</Vendor>
+      <Version />
+      <Custom>false</Custom>
+      <DetectedByFiles>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\ldiscn32.exe</filename>
+          <minVersion>8.70.6.22</minVersion>
+          <maxVersion>8.70.7.15</maxVersion>
+        </File>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\amclient.exe</filename>
+          <minVersion>8.70.6.7</minVersion>
+          <maxVersion>8.70.7.2</maxVersion>
+        </File>
+      </DetectedByFiles>
+      <DetectedByRegs />
+      <Advanced>
+        <DetectScript />
+      </Advanced>
+      <DetectedByRPMs />
+      <DetectedByBundles />
+    </prod>
+    <prod Prod_ID="LANDesk_Client_87SP3" Revision="5">
+      <Name>LANDesk 8.7 SP3 Client</Name>
+      <Vendor>LANDesk</Vendor>
+      <Version />
+      <Custom>false</Custom>
+      <DetectedByFiles>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\ldiscn32.exe</filename>
+          <minVersion>8.70.7.15</minVersion>
+          <maxVersion>8.70.7.27</maxVersion>
+        </File>
+      </DetectedByFiles>
+      <DetectedByRegs />
+      <Advanced>
+        <DetectScript />
+      </Advanced>
+      <DetectedByRPMs />
+      <DetectedByBundles />
+    </prod>
+    <prod Prod_ID="LANDesk_Client_87SP4" Revision="2">
+      <Name>LANDesk 8.7 SP4 Client</Name>
+      <Vendor>LANDesk</Vendor>
+      <Version />
+      <Custom>false</Custom>
+      <DetectedByFiles>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\ldiscn32.exe</filename>
+          <minVersion>8.70.7.28</minVersion>
+          <maxVersion>8.70.7.31</maxVersion>
+        </File>
+      </DetectedByFiles>
+      <DetectedByRegs />
+      <Advanced>
+        <DetectScript />
+      </Advanced>
+      <DetectedByRPMs />
+      <DetectedByBundles />
+    </prod>
+    <prod Prod_ID="LANDesk_Client_87SP5" Revision="2">
+      <Name>LANDesk 8.7 SP5 Client</Name>
+      <Vendor>LANDesk</Vendor>
+      <Version />
+      <Custom>false</Custom>
+      <DetectedByFiles>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\ldiscn32.exe</filename>
+          <minVersion>8.70.7.32</minVersion>
+          <maxVersion>8.70.8.9999</maxVersion>
+        </File>
+      </DetectedByFiles>
+      <DetectedByRegs />
+      <Advanced>
+        <DetectScript />
+      </Advanced>
+      <DetectedByRPMs />
+      <DetectedByBundles />
+    </prod>
+    <prod Prod_ID="LANDesk_Client_88" Revision="3">
+      <Name>LANDesk 8.8 Client</Name>
+      <Vendor>LANDesk</Vendor>
+      <Version>Gold</Version>
+      <Custom>false</Custom>
+      <DetectedByFiles>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\ldiscn32.exe</filename>
+          <minVersion>8.80.0.249</minVersion>
+          <maxVersion>8.80.1.20</maxVersion>
+        </File>
+      </DetectedByFiles>
+      <DetectedByRegs />
+      <Advanced>
+        <DetectScript />
+      </Advanced>
+      <DetectedByRPMs />
+      <DetectedByBundles />
+    </prod>
+    <prod Prod_ID="LANDesk_Client_88SP1" Revision="1">
+      <Name>LANDesk 8.8 SP1 Client</Name>
+      <Vendor>LANDesk</Vendor>
+      <Version>Service Pack 1</Version>
+      <Custom>false</Custom>
+      <DetectedByFiles>
+        <File>
+          <filename>%regval(HKLM\Software\LANDesk\ManagementSuite\WinClient\Path)%\ldiscn32.exe</filename>
+          <minVersion>8.80.1.21</minVersion>
+          <maxVersion>8.80.99.9999</maxVersion>
+        </File>
+      </DetectedByFiles>
+      <DetectedByRegs />
+      <Advanced>
+        <DetectScript />
+      </Advanced>
+      <DetectedByRPMs />
+      <DetectedByBundles />
+    </prod>
+  </AssociatedProducts>
+  <Groups />
+</Vulnerability>

@@ -1,0 +1,20 @@
+#!/usr/local/PDK/lib/pai
+PAP-Version: 1.0
+Packer: /usr/local/PDK/bin/perlapp
+Script: ldms_client_mac.pl
+Cwd: /Users/jackcoates/Documents/code/ldms_client
+Clean: 0
+Date: 2008-07-15 10:49:42
+Debug: 
+Dependent: 0
+Exe: ldms_client_mac
+Force: 1
+Gui: 0
+Hostname: jack-coates-computer.local
+No-Compress: 0
+No-Logo: 0
+Runlib: 
+Shared: private
+Tmpdir: 
+Verbose: 0
+Xclude: 0
