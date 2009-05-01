@@ -1,0 +1,100 @@
+#############################################################################
+# ldms_netstat.pl, v 1.0                                                    #
+# (c) 2006 Jack Coates, jack@monkeynoodle.org                               #
+# Released under GPL, see http://www.gnu.org/licenses/gpl.html for license  #
+# Patches welcome at the above email address.                               #
+# Thanks to $Bill Luebkert for the command-line handling.                   #
+#############################################################################
+#
+# See README_ldms_netstat.txt for documentation.
+#
+
+#############################################################################
+# Pragmas and Modules                                                       #
+#############################################################################
+use strict;
+use warnings;
+use Win32;
+
+#############################################################################
+# Variables                                                                 #
+#############################################################################
+our %A;    # get commandline switches into %A
+for ( my $ii = 0 ; $ii < @ARGV ; ) {
+    last if $ARGV[$ii] =~ /^--$/;
+    if ( $ARGV[$ii] !~ /^-{1,2}(.*)$/ ) { $ii++; next; }
+    my $arg = $1;
+    splice @ARGV, $ii, 1;
+    if ( $arg =~ /^([\w]+)=(.*)$/ ) { $A{$1} = $2; }
+    else                            { $A{$1}++; }
+}
+
+my $os    = $^O;
+my $dir   = Win32::GetShortPathName('C:\Program Files\LANDesk\ldclient');
+my $DEBUG = $A{d} || 0;
+( my $prog = $0 ) =~ s/^.*[\\\/]//;
+my $ver     = "1.0";
+my $file    = $dir . "\\" . 'netstat.dat';
+my $command = 'netstat -an';
+my $usage   = <<EOD;
+
+Usage: $prog [-d] [-h] [-i]
+	-d			debug
+	-h(elp)		this display
+
+$prog v $ver
+Jack Coates, jack\@monkeynoodle.org, released under GPL
+This script will parse and output netstat information for use in ldcustom.dat.
+The latest version lives at 
+http://www.droppedpackets.org/inventory/ldms_netstat
+
+EOD
+
+#############################################################################
+# Main Loop                                                                 #
+#############################################################################
+
+# Suppress DOS Windows
+BEGIN {
+    Win32::SetChildShowWindow(0) if defined &Win32::SetChildShowWindow;
+}
+
+die $usage if $A{h} or $A{help};
+
+open( FILE, ">$file" ) or die "Can't open $file: $!\n";
+
+my @netstat = `$command`;
+
+foreach my $i (@netstat) {
+    &trim($i);
+    if ( $i =~ /^$/ )         { next; }
+    if ( $i =~ /^Active/i )   { next; }
+    if ( $i =~ /\sProto\s/i ) { next; }
+    my @line = split( ' ', $i );
+    if ( $line[0] =~ /TCP/ && $line[3] =~ /LISTENING/i ) {
+        my @port = split( ':', $line[1] );
+        print FILE
+          "Netstat - Open Port - $line[0] - $port[1] = $line[0]/$port[1]\n";
+    }
+    if ( $line[0] =~ /UDP/i ) {
+        my @port = split( ':', $line[1] );
+        print FILE
+          "Netstat - Open Port - $line[0] - $port[1] = $line[0]/$port[1]\n";
+    }
+}
+
+close(FILE);
+exit;
+
+#############################################################################
+# Subroutines                                                               #
+#############################################################################
+sub trim($) {
+    my $string = shift;
+    $string =~ s/^\s+|\s+$//;
+    $string =~ s/\'|\"//g;
+    $string =~ s/\n|\r//g;
+    $string =~ s/ //g;
+    return $string;
+}
+

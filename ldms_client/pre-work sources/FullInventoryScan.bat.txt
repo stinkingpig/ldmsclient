@@ -1,0 +1,14 @@
+ECHO OFF
+ECHO ==========================================
+ECHO =         Landesk Full Inventory         =
+ECHO = This will perform a full hardware and  =
+ECHO =           Software Inventory           =
+ECHO =           Script Version 2.0           =
+ECHO =        Written By Steven Hamel         =
+ECHO ==========================================
+
+Del TaskResult*
+cd c:\windows\system32
+Del TaskResult*
+
+"C:\Program Files\LANDesk\LDCLient\LDISCN32.EXE" /NTT=NYGOAPPD05:5007 /S=NYGOAPPD05  /I=HTTP://NYGOAPPD05.mediacomcorp.com/ldlogon/ldappl3.ldz /NOUI /F /SYNC
