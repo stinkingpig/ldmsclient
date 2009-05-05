@@ -49,7 +49,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.5";
+my $VERSION = "2.4.6";
 
 my (
     $ldmain,              $ldlogon,              $updatemessage,
@@ -59,7 +59,8 @@ my (
     $SID,                 $RegistryInfo,         $Macintosh,
     $FindNSF,             $FindProfileSize,      $AggroMailSearch,
     $ProdukeyBinary,      $DCCUWol,              $DCCUWolBinary,
-    $MacNetstat,          $MacOptical,           $main,
+    $MacNetstat,          $MacOptical,           $Main,
+    $MainTab, 
     $w,                   $h,                    $ncw,
     $nch,                 $dw,                   $dh,
     $desk,                $wx,                   $wy,
@@ -101,7 +102,8 @@ my (
     $lbl_NonAdminBail,    $NonAdminBail,         $FindOST,
     $lbl_FindOST,         $form_FindOST,         $MappedDrives,
     $lbl_MappedDrives,    $form_MappedDrives,    $CrashReport,
-    $lbl_CrashReport,     $form_CrashReport
+    $lbl_CrashReport,     $form_CrashReport, $DefragNeeded, 
+    $lbl_DefragNeeded,  $form_DefragNeeded
 );
 
 # Prepare logging system
@@ -171,6 +173,9 @@ my $ldms_client_class =
   );
 
 &Show_MainWindow;
+&Main_InsertTabs;
+&Main_Hide;
+&MainTab_Users;
 Win32::GUI::Dialog();
 
 # Write discovered data
@@ -379,6 +384,7 @@ sub ReadConfigFile {
     $NonAdminBail    = $Config->{_}->{NonAdminBail};
     $MappedDrives    = $Config->{_}->{MappedDrives};
     $CrashReport     = $Config->{_}->{CrashReport};
+    $DefragNeeded    = $Config->{_}->{DefragNeeded};
     if ($RegistryReader) {
 
         foreach my $index ( 1 .. 10 ) {
@@ -441,6 +447,7 @@ sub WriteConfigFile {
     $Config->{_}->{NonAdminBail}    = $NonAdminBail;
     $Config->{_}->{MappedDrives}    = $MappedDrives;
     $Config->{_}->{CrashReport}     = $CrashReport;
+    $Config->{_}->{DefragNeeded}    = $DefragNeeded;
     foreach my $index ( 1 .. 10 ) {
         $Config->{RegistryReader}->{$index} = $rr[$index];
     }
@@ -463,12 +470,12 @@ sub WriteConfigFile {
 sub Show_MainWindow {
 
     my $leftmargin   = 30;
-    my $rightmargin  = 50;
+    my $rightmargin  = 80;
     my $bottommargin = 80;
     my $nexthoriz    = 5;
 
     # build window
-    $main = Win32::GUI::Window->new(
+    $Main = Win32::GUI::Window->new(
         -name        => 'Main',
         -text        => "ldms_client_core $VERSION configuration",
         -class       => $ldms_client_class,
@@ -477,91 +484,26 @@ sub Show_MainWindow {
         -onResize    => \&Main_Resize,
     );
 
-    # Add some stuff
-    $lbl_Instructions = $main->AddLabel(
+    # Instructions for use
+    $lbl_Instructions = $Main->AddLabel(
         -name => "lblInstructions",
         -text => "Please select the scan extensions you'd like to enable.",
         -pos  => [ $leftmargin, $nexthoriz ],
         -size => [ 400, 20 ],
     );
 
-    # Begin Battery row
-    $form_Battery = $main->AddCheckbox(
-        -name    => "battery_field",
-        -checked => $Battery,
-        -tabstop => 1,
-        -pos     => [ $leftmargin, $nexthoriz += 25 ],
-        -size => [ 15, 20 ],
-    );
-    $lbl_Battery = $main->AddLabel(
-        -name => "lblBattery",
-        -text => "Battery Information",
-        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
-        -size => [ 300, 20 ]
-    );
-
-    # End Battery row
-
-    # Begin Netstat row
-    $form_Netstat = $main->AddCheckbox(
-        -name    => "netstat_field",
-        -checked => $Netstat,
-        -tabstop => 1,
-        -pos     => [ $leftmargin, $nexthoriz += 25 ],
-        -size => [ 15, 20 ],
-    );
-    $lbl_Netstat = $main->AddLabel(
-        -name => "lblNetstat",
-        -text => "Netstat Information",
-        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
-        -size => [ 300, 20 ],
-    );
-
-    # End Netstat row
-
-    # Begin NICDuplex row
-    $form_NICDuplex = $main->AddCheckbox(
-        -name    => "nicduplex_field",
-        -checked => $NICDuplex,
-        -tabstop => 1,
-        -pos     => [ $leftmargin, $nexthoriz += 25 ],
-        -size => [ 15, 20 ],
-    );
-    $lbl_NICDuplex = $main->AddLabel(
-        -name => "lblNNICDuplex",
-        -text => "NIC Duplex Information",
-        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
-        -size => [ 300, 20 ],
-    );
-
-    # End NICDuplex row
-
-    # Begin PolicyList row
-    $form_PolicyList = $main->AddCheckbox(
-        -name    => "policylist_field",
-        -checked => $PolicyList,
-        -tabstop => 1,
-        -pos     => [ $leftmargin, $nexthoriz += 25 ],
-        -size => [ 15, 20 ],
-    );
-    $lbl_PolicyList = $main->AddLabel(
-        -name => "lblPolicyList",
-        -text => "LANDesk Policy List",
-        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
-        -size => [ 300, 20 ],
-    );
-
-    # End PolicyList row
+    # BEGIN USERS TAB #######
+    $nexthoriz    = 35;
 
     # Begin FindPST row
-    $form_FindPST = $main->AddCheckbox(
+    $form_FindPST = $Main->AddCheckbox(
         -name    => "findpst_field",
         -checked => $FindPST,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_FindPST = $main->AddLabel(
+    $lbl_FindPST = $Main->AddLabel(
         -name => "lblFindPST",
         -text => "Find Microsoft Outlook PST Files",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
@@ -571,14 +513,14 @@ sub Show_MainWindow {
     # End FindPST row
 
     # Begin FindOST row
-    $form_FindOST = $main->AddCheckbox(
+    $form_FindOST = $Main->AddCheckbox(
         -name    => "findost_field",
         -checked => $FindOST,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_FindOST = $main->AddLabel(
+    $lbl_FindOST = $Main->AddLabel(
         -name => "lblFindOST",
         -text => "Find Microsoft Outlook OST Files",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
@@ -588,14 +530,14 @@ sub Show_MainWindow {
     # End FindOST row
 
     # Begin FindNSF row
-    $form_FindNSF = $main->AddCheckbox(
+    $form_FindNSF = $Main->AddCheckbox(
         -name    => "findnsf_field",
         -checked => $FindNSF,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_FindNSF = $main->AddLabel(
+    $lbl_FindNSF = $Main->AddLabel(
         -name => "lblFindNSF",
         -text => "Find Lotus Notes NSF Files",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
@@ -605,13 +547,13 @@ sub Show_MainWindow {
     # End FindNSF row
 
     # Begin AggroMailSearch row
-    $lbl_AggroMailSearch = $main->AddLabel(
+    $lbl_AggroMailSearch = $Main->AddLabel(
         -name => "lblAggroMailSearch",
         -text => "Email search: Default location, user profiles, system drive",
         -pos  => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 300, 20 ],
     );
-    $form_AggroMailSearch = $main->AddSlider(
+    $form_AggroMailSearch = $Main->AddSlider(
         -name     => "aggromailsearch_field",
         -selrange => 0,
         -tabstop  => 1,
@@ -621,21 +563,102 @@ sub Show_MainWindow {
     $form_AggroMailSearch->SetRange( 1, 3 );
     $form_AggroMailSearch->SetPos($AggroMailSearch);
     $form_AggroMailSearch->SetBuddy( 0,
-        $main->AddLabel( -text => "Accuracy" ) );
+        $Main->AddLabel( 
+            -name => "lbl_aggromailsearch_left",
+            -text => "Accuracy" ) );
     $form_AggroMailSearch->SetBuddy( 1,
-        $main->AddLabel( -text => "Performance" ) );
-
+        $Main->AddLabel( 
+            -name => "lbl_aggromailsearch_right",
+            -text => "Performance" ) );
     # End AggroMailSearch row
 
+    # Begin RegistryReader row
+    $form_RegistryReader = $Main->AddCheckbox(
+        -name    => "registryreader_field",
+        -checked => $RegistryReader,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_RegistryReader = $Main->AddLabel(
+        -name => "lblRegistryReader",
+        -text => "Collect Registry Keys from HKCU",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 180, 20 ],
+    );
+
+    # Begin MappedDrives row
+    $form_MappedDrives = $Main->AddCheckbox(
+        -name    => "mappeddrives_field",
+        -checked => $MappedDrives,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_MappedDrives = $Main->AddLabel(
+        -name => "lblMappedDrives",
+        -text => "Report on mapped drives",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ],
+    );
+
+    # End MappedDrives row
+
+    # spawn the registry key configuration window
+    $btn_RegistryReader = $Main->AddButton(
+        -name    => "btn_RegistryReader",
+        -text    => "Configure Registry Keys",
+        -pos     => [ $lbl_RegistryReader->Width() + $leftmargin, $nexthoriz ],
+        -onClick => \&Show_RRWindow,
+    );
+
+    # End RegistryReader row
+
+    # Begin Profile Size row
+    $form_FindProfileSize = $Main->AddCheckbox(
+        -name    => "profilesize_field",
+        -checked => $FindProfileSize,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_FindProfileSize = $Main->AddLabel(
+        -name => "lblprofilesize",
+        -text => "Find User Profile Sizes",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ],
+    );
+
+    # End Profile Size row
+
+    # BEGIN SYSTEM TAB #######
+    $nexthoriz    = 35;
+
+    # Begin PolicyList row
+    $form_PolicyList = $Main->AddCheckbox(
+        -name    => "policylist_field",
+        -checked => $PolicyList,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_PolicyList = $Main->AddLabel(
+        -name => "lblPolicyList",
+        -text => "LANDesk Policy List",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ],
+    );
+    # End PolicyList row
+
     # Begin LANDeskInfo row
-    $form_LANDeskInfo = $main->AddCheckbox(
+    $form_LANDeskInfo = $Main->AddCheckbox(
         -name    => "landeskinfo_field",
         -checked => $LANDeskInfo,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_LANDeskInfo = $main->AddLabel(
+    $lbl_LANDeskInfo = $Main->AddLabel(
         -name => "lblLANDeskInfo",
         -text => "LANDesk Client Information",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
@@ -645,14 +668,14 @@ sub Show_MainWindow {
     # End LANDeskInfo row
 
     # Begin EnumerateGroups row
-    $form_EnumerateGroups = $main->AddCheckbox(
+    $form_EnumerateGroups = $Main->AddCheckbox(
         -name    => "enumerategroups_field",
         -checked => $EnumerateGroups,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_EnumerateGroups = $main->AddLabel(
+    $lbl_EnumerateGroups = $Main->AddLabel(
         -name => "lblEnumerateGroups",
         -text => "Resolve Domain Members in Local Groups",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
@@ -661,74 +684,15 @@ sub Show_MainWindow {
 
     # End EnumerateGroups row
 
-    # Begin CrashReport row
-    $form_CrashReport = $main->AddCheckbox(
-        -name    => "crashreport_field",
-        -checked => $CrashReport,
-        -tabstop => 1,
-        -pos     => [ $leftmargin, $nexthoriz += 25 ],
-        -size => [ 15, 20 ],
-    );
-    $lbl_CrashReport = $main->AddLabel(
-        -name => "lblCrashReport",
-        -text => "Report number of crashes within the last week",
-        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
-        -size => [ 300, 20 ],
-    );
-
-    # End MappedDrives row
-
-    # Begin MappedDrives row
-    $form_MappedDrives = $main->AddCheckbox(
-        -name    => "mappeddrives_field",
-        -checked => $MappedDrives,
-        -tabstop => 1,
-        -pos     => [ $leftmargin, $nexthoriz += 25 ],
-        -size => [ 15, 20 ],
-    );
-    $lbl_MappedDrives = $main->AddLabel(
-        -name => "lblMappedDrives",
-        -text => "Report on mapped drives",
-        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
-        -size => [ 300, 20 ],
-    );
-
-    # End MappedDrives row
-
-    # Begin RegistryReader row
-    $form_RegistryReader = $main->AddCheckbox(
-        -name    => "registryreader_field",
-        -checked => $RegistryReader,
-        -tabstop => 1,
-        -pos     => [ $leftmargin, $nexthoriz += 25 ],
-        -size => [ 15, 20 ],
-    );
-    $lbl_RegistryReader = $main->AddLabel(
-        -name => "lblRegistryReader",
-        -text => "Collect Registry Keys from HKCU",
-        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
-        -size => [ 180, 20 ],
-    );
-
-    # spawn the registry key configuration window
-    $btn_RegistryReader = $main->AddButton(
-        -name    => "btn_RegistryReader",
-        -text    => "Configure Registry Keys",
-        -pos     => [ $lbl_RegistryReader->Width() + $leftmargin, $nexthoriz ],
-        -onClick => \&Show_RRWindow,
-    );
-
-    # End RegistryReader row
-
     # Begin RegistryInfo row
-    $form_RegistryInfo = $main->AddCheckbox(
+    $form_RegistryInfo = $Main->AddCheckbox(
         -name    => "registryinfo_field",
         -checked => $RegistryInfo,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_RegistryInfo = $main->AddLabel(
+    $lbl_RegistryInfo = $Main->AddLabel(
         -name => "lblRegistryInfo",
         -text => "Collect Registry Keys from HKLM",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
@@ -736,7 +700,7 @@ sub Show_MainWindow {
     );
 
     # spawn the registry key configuration window
-    $btn_RegistryInfo = $main->AddButton(
+    $btn_RegistryInfo = $Main->AddButton(
         -name    => "btn_RegistryInfo",
         -text    => "Configure Registry Keys",
         -pos     => [ $lbl_RegistryInfo->Width() + $leftmargin, $nexthoriz ],
@@ -746,20 +710,20 @@ sub Show_MainWindow {
     # End RegistryReader row
 
     # Begin Produkey rows
-    $form_Produkey = $main->AddCheckbox(
+    $form_Produkey = $Main->AddCheckbox(
         -name    => "produkey_field",
         -checked => $Produkey,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_Produkey = $main->AddLabel(
+    $lbl_Produkey = $Main->AddLabel(
         -name => "lblProdukey",
         -text => "Collect Microsoft product keys",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
         -size => [ 300, 20 ],
     );
-    $form_ProdukeyBinary = $main->AddTextfield(
+    $form_ProdukeyBinary = $Main->AddTextfield(
         -name    => "produkeybinary_field",
         -prompt  => "Location of produkey.exe",
         -text    => $ProdukeyBinary,
@@ -770,21 +734,106 @@ sub Show_MainWindow {
 
     # End Produkey rows
 
+    # Begin SID row
+    $form_SID = $Main->AddCheckbox(
+        -name    => "sid_field",
+        -checked => $SID,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_SID = $Main->AddLabel(
+        -name => "lblSID",
+        -text => "Collect Machine SIDs and FQDNs",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ],
+    );
+
+    # End SID row
+
+    # BEGIN HARDWARE TAB #######
+    $nexthoriz    = 35;
+
+    # Begin Battery row
+    $form_Battery = $Main->AddCheckbox(
+        -name    => "battery_field",
+        -checked => $Battery,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_Battery = $Main->AddLabel(
+        -name => "lblBattery",
+        -text => "Battery Information",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ]
+    );
+    # End Battery row
+
+    # Begin NICDuplex row
+    $form_NICDuplex = $Main->AddCheckbox(
+        -name    => "nicduplex_field",
+        -checked => $NICDuplex,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_NICDuplex = $Main->AddLabel(
+        -name => "lblNNICDuplex",
+        -text => "NIC Duplex Information",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ],
+    );
+    # End NICDuplex row
+
+    # Begin Netstat row
+    $form_Netstat = $Main->AddCheckbox(
+        -name    => "netstat_field",
+        -checked => $Netstat,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_Netstat = $Main->AddLabel(
+        -name => "lblNetstat",
+        -text => "Netstat Information",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ],
+    );
+    # End Netstat row
+
+    # Begin CrashReport row
+    $form_CrashReport = $Main->AddCheckbox(
+        -name    => "crashreport_field",
+        -checked => $CrashReport,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_CrashReport = $Main->AddLabel(
+        -name => "lblCrashReport",
+        -text => "Report number of crashes within the last week",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ],
+    );
+
+    # End CrashReport row
+
     # Begin DCCUWol rows
-    $form_DCCUWol = $main->AddCheckbox(
+    $form_DCCUWol = $Main->AddCheckbox(
         -name    => "dccuwol_field",
         -checked => $DCCUWol,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_DCCUWol = $main->AddLabel(
+    $lbl_DCCUWol = $Main->AddLabel(
         -name => "lblDCCUWol",
         -text => "Collect Dell Wake-On-LAN status",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
         -size => [ 300, 20 ],
     );
-    $form_DCCUWolBinary = $main->AddTextfield(
+    $form_DCCUWolBinary = $Main->AddTextfield(
         -name    => "dccuwolbinary_field",
         -prompt  => "getwol.exe or inventory.exe",
         -text    => $DCCUWolBinary,
@@ -795,49 +844,35 @@ sub Show_MainWindow {
 
     # End DCCUWol rows
 
-    # Begin SID row
-    $form_SID = $main->AddCheckbox(
-        -name    => "sid_field",
-        -checked => $SID,
-        -tabstop => 1,
-        -pos     => [ $leftmargin, $nexthoriz += 25 ],
-        -size => [ 15, 20 ],
-    );
-    $lbl_SID = $main->AddLabel(
-        -name => "lblSID",
-        -text => "Collect Machine SIDs and FQDNs",
-        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
-        -size => [ 300, 20 ],
-    );
-
-    # End SID row
-
-    # Begin Profile Size row
-    $form_FindProfileSize = $main->AddCheckbox(
+    # Begin Defrag Needed row
+    $form_DefragNeeded = $Main->AddCheckbox(
         -name    => "profilesize_field",
-        -checked => $FindProfileSize,
+        -checked => $DefragNeeded,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_FindProfileSize = $main->AddLabel(
-        -name => "lblprofilesize",
-        -text => "Find User Profile Sizes",
+    $lbl_DefragNeeded = $Main->AddLabel(
+        -name => "lbldefragneeded",
+        -text => "Report disk fragmentation?",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
         -size => [ 300, 20 ],
     );
 
-    # End Profile Size row
+    # End Defrag Needed row
+
+    # BEGIN GENERAL TAB #######
+    $nexthoriz    = 35;
 
     # Begin Macintosh row
-    $form_Macintosh = $main->AddCheckbox(
+    $form_Macintosh = $Main->AddCheckbox(
         -name    => "macintosh_field",
         -checked => $Macintosh,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_Macintosh = $main->AddLabel(
+    $lbl_Macintosh = $Main->AddLabel(
         -name => "lblMacintosh",
         -text => "Extend Macintosh inventory",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
@@ -845,7 +880,7 @@ sub Show_MainWindow {
     );
 
     # spawn the Macintosh inventory configuration window
-    $btn_Macintosh = $main->AddButton(
+    $btn_Macintosh = $Main->AddButton(
         -name    => "btn_Macintosh",
         -text    => "Configure Mac Inventory",
         -pos     => [ $lbl_Macintosh->Width() + $leftmargin, $nexthoriz ],
@@ -855,14 +890,14 @@ sub Show_MainWindow {
     # End Macintosh row
 
     # Begin Non-Admin Bail configuration row
-    $form_NonAdminBail = $main->AddCheckbox(
+    $form_NonAdminBail = $Main->AddCheckbox(
         -name    => "nonadminbail_field",
         -checked => $NonAdminBail,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
     );
-    $lbl_NonAdminBail = $main->AddLabel(
+    $lbl_NonAdminBail = $Main->AddLabel(
         -name => "lblnonadminbail",
         -text => "Should it silently exit if launched without admin rights?",
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
@@ -872,51 +907,51 @@ sub Show_MainWindow {
     # End Non-Admin Bail configuration row
 
     # Begin button row
-    $btn_default = $main->AddButton(
+    $btn_default = $Main->AddButton(
         -name    => 'Default',
         -text    => 'Ok',
         -tabstop => 1,
         -default => 1,           # Give button darker border
         -ok      => 1,           # press 'Return' to click this button
-        -pos => [ 50, $nexthoriz += 40 ],
+        -pos => [ 50, 275 ],
         -size    => [ 60, 20 ],
         -onClick => \&Default_Click,
     );
 
-    $btn_cancel = $main->AddButton(
+    $btn_cancel = $Main->AddButton(
         -name    => 'Cancel',
         -text    => 'Cancel',
         -tabstop => 1,
         -cancel  => 1,                     # press 'Esc' to click this button
-        -pos     => [ 150, $nexthoriz ],
+        -pos     => [ 150, 275 ],
         -size    => [ 60, 20 ],
         -onClick => \&Cancel_Click,
     );
 
-    $btn_help = $main->AddButton(
+    $btn_help = $Main->AddButton(
         -name    => 'Help',
         -text    => 'Help',
         -tabstop => 1,
-        -pos     => [ 250, $nexthoriz ],
+        -pos     => [ 250, 275 ],
         -size    => [ 60, 20 ],
         -onClick => \&Help_Click,
     );
 
     # End button row
 
-    $sb = $main->AddStatusBar();
+    $sb = $Main->AddStatusBar();
     if ($updatemessage) {
         $sb->Text($updatemessage);
     }
 
     # calculate its size
-    $ncw = $main->Width() - $main->ScaleWidth();
-    $nch = $main->Height() - $main->ScaleHeight();
+    $ncw = $Main->Width() - $Main->ScaleWidth();
+    $nch = $Main->Height() - $Main->ScaleHeight();
     $w   = $leftmargin + $lbl_Instructions->Width() + $rightmargin + $ncw;
-    $h   = $nexthoriz + $bottommargin;
+    $h   = 275 + $bottommargin;
 
     # Don't let it get smaller than it should be
-    $main->Change( -minsize => [ $w, $h ] );
+    $Main->Change( -minsize => [ $w, $h ] );
 
     # calculate its centered position
     # Assume we have the main window size in ($w, $h) as before
@@ -927,22 +962,241 @@ sub Show_MainWindow {
     $wy   = ( $dh - $h ) / 2;
 
     # Resize, position and display
-    $main->Resize( $w, $h );
-    $main->Move( $wx, $wy );
+    $Main->Resize( $w, $h );
+    $Main->Move( $wx, $wy );
 
     Win32::GUI::SetCursor($oldCursor);    #show previous arrow cursor again
 
-    $main->Show();
+    $Main->Show();
     return 0;
 }
 ### End of Show Main Window #################################################
 
 ### Resize the Main Window ##################################################
 sub Main_Resize {
-    $sb->Move( 0, $main->ScaleHeight - $sb->Height );
-    $sb->Resize( $main->ScaleWidth, $sb->Height );
+    $sb->Move( 0, $Main->ScaleHeight - $sb->Height );
+    $sb->Resize( $Main->ScaleWidth, $sb->Height );
     return 0;
 }
+
+## Create the tab bar #########################################################
+sub Main_InsertTabs {
+    $MainTab = $Main->AddTabStrip(
+        -left     => 10,
+        -top      => 30,
+        -width    => $Main->ScaleWidth - 20,
+        -height   => $Main->ScaleHeight - 50,
+        -name     => "Main_Tab",
+        -onChange => \&Main_TabChanged,
+    );
+
+    # tab 0
+    $MainTab->InsertItem( -text => "Users" );
+
+    # tab 1
+    $MainTab->InsertItem( -text => "System" );
+
+    # tab 2
+    $MainTab->InsertItem( -text => "Hardware" );
+
+    # tab 3
+    $MainTab->InsertItem( -text => "General" );
+    return 0;
+}
+###############################################################################
+
+### Handle changes in the tab bar #############################################
+sub Main_TabChanged {
+
+    if ($DEBUG) { Log("DEBUG: Main_TabChanged"); }
+    &Main_Hide;
+
+    #what tab is it now?
+    my $newtab = $MainTab->SelectedItem();
+
+    # Users tab
+    if ( $newtab == 0 ) {
+        &MainTab_Users;
+    }
+
+    # System tab
+    if ( $newtab == 1 ) {
+        &MainTab_System;
+    }
+
+    # Hardware tab
+    if ( $newtab == 2 ) {
+        &MainTab_Hardware;
+    }
+
+    # General tab
+    if ( $newtab == 3 ) {
+        &MainTab_General;
+    }
+    return 0;
+}
+###############################################################################
+
+###############################################################################
+sub MainTab_Users {
+
+    if ($DEBUG) { Log("DEBUG: MainTab_Users"); }
+    $form_FindPST->Show();
+    $lbl_FindPST->Show();
+    $form_FindOST->Show();
+    $lbl_FindOST->Show();
+    $form_FindNSF->Show();
+    $lbl_FindNSF->Show();
+    $lbl_AggroMailSearch->Show();
+    $form_AggroMailSearch->Show();
+   # Some of the visible items on the window are automagically created and don't
+   # have associated objects... so they have to be called directly via name
+    Win32::GUI::Show( $Main->lbl_aggromailsearch_left()->{-handle} );
+    Win32::GUI::Show( $Main->lbl_aggromailsearch_right()->{-handle} );
+    $form_RegistryReader->Show();
+    $lbl_RegistryReader->Show();
+    $form_MappedDrives->Show();
+    $lbl_MappedDrives->Show();
+    $btn_RegistryReader->Show();
+    $form_FindProfileSize->Show();
+    $lbl_FindProfileSize->Show();
+    return 0;
+}
+###############################################################################
+
+###############################################################################
+sub MainTab_System {
+
+    if ($DEBUG) { Log("DEBUG: MainTab_System"); }
+    $form_PolicyList->Show();
+    $lbl_PolicyList->Show();
+    $form_LANDeskInfo->Show();
+    $lbl_LANDeskInfo->Show();
+    $form_EnumerateGroups->Show();
+    $lbl_EnumerateGroups->Show();
+    $form_RegistryInfo->Show();
+    $lbl_RegistryInfo->Show();
+    $btn_RegistryInfo->Show();
+    $form_Produkey->Show();
+    $lbl_Produkey->Show();
+    $form_ProdukeyBinary->Show();
+   # Some of the visible items on the window are automagically created and don't
+   # have associated objects... so they have to be called directly via name
+    Win32::GUI::Show( $Main->produkeybinary_field_Prompt()->{-handle} );
+    $form_SID->Show();
+    $lbl_SID->Show();
+    return 0;
+}
+###############################################################################
+
+###############################################################################
+sub MainTab_Hardware {
+
+    if ($DEBUG) { Log("DEBUG: MainTab_Hardware"); }
+    $form_Battery->Show();
+    $lbl_Battery->Show();
+    $form_NICDuplex->Show();
+    $lbl_NICDuplex->Show();
+    $form_Netstat->Show();
+    $lbl_Netstat->Show();
+    $form_CrashReport->Show();
+    $lbl_CrashReport->Show();
+    $form_DCCUWol->Show();
+    $lbl_DCCUWol->Show();
+    $form_DCCUWolBinary->Show();
+   # Some of the visible items on the window are automagically created and don't
+   # have associated objects... so they have to be called directly via name
+    Win32::GUI::Show( $Main->dccuwolbinary_field_Prompt()->{-handle} );
+    $form_DefragNeeded->Show();
+    $lbl_DefragNeeded->Show();
+    return 0;
+}
+###############################################################################
+
+###############################################################################
+sub MainTab_General {
+
+    if ($DEBUG) { Log("DEBUG: MainTab_General"); }
+    $form_Macintosh->Show();
+    $lbl_Macintosh->Show();
+    $btn_Macintosh->Show();
+    $form_NonAdminBail->Show();
+    $lbl_NonAdminBail->Show();
+    return 0;
+}
+###############################################################################
+
+## Hide everything except the tab bar #########################################
+sub Main_Hide {
+
+    if ($DEBUG) { Log("DEBUG: Main_Hide"); }
+    # Users Tab
+    $form_FindPST->Hide();
+    $lbl_FindPST->Hide();
+    $form_FindOST->Hide();
+    $lbl_FindOST->Hide();
+    $form_FindNSF->Hide();
+    $lbl_FindNSF->Hide();
+    $lbl_AggroMailSearch->Hide();
+    $form_AggroMailSearch->Hide();
+   # Some of the visible items on the window are automagically created and don't
+   # have associated objects... so they have to be called directly via name
+    Win32::GUI::Hide( $Main->lbl_aggromailsearch_left()->{-handle} );
+    Win32::GUI::Hide( $Main->lbl_aggromailsearch_right()->{-handle} );
+    $form_RegistryReader->Hide();
+    $lbl_RegistryReader->Hide();
+    $form_MappedDrives->Hide();
+    $lbl_MappedDrives->Hide();
+    $btn_RegistryReader->Hide();
+    $form_FindProfileSize->Hide();
+    $lbl_FindProfileSize->Hide();
+
+    # System Tab
+    $form_PolicyList->Hide();
+    $lbl_PolicyList->Hide();
+    $form_LANDeskInfo->Hide();
+    $lbl_LANDeskInfo->Hide();
+    $form_EnumerateGroups->Hide();
+    $lbl_EnumerateGroups->Hide();
+    $form_RegistryInfo->Hide();
+    $lbl_RegistryInfo->Hide();
+    $btn_RegistryInfo->Hide();
+    $form_Produkey->Hide();
+    $lbl_Produkey->Hide();
+    $form_ProdukeyBinary->Hide();
+   # Some of the visible items on the window are automagically created and don't
+   # have associated objects... so they have to be called directly via name
+    Win32::GUI::Hide( $Main->produkeybinary_field_Prompt()->{-handle} );
+    $form_SID->Hide();
+    $lbl_SID->Hide();
+
+    # Hardware Tab
+    $form_Battery->Hide();
+    $lbl_Battery->Hide();
+    $form_NICDuplex->Hide();
+    $lbl_NICDuplex->Hide();
+    $form_Netstat->Hide();
+    $lbl_Netstat->Hide();
+    $form_CrashReport->Hide();
+    $lbl_CrashReport->Hide();
+    $form_DCCUWol->Hide();
+    $lbl_DCCUWol->Hide();
+    $form_DCCUWolBinary->Hide();
+   # Some of the visible items on the window are automagically created and don't
+   # have associated objects... so they have to be called directly via name
+    Win32::GUI::Hide( $Main->dccuwolbinary_field_Prompt()->{-handle} );
+    $form_DefragNeeded->Hide();
+    $lbl_DefragNeeded->Hide();
+
+    # General Tab
+    $form_Macintosh->Hide();
+    $lbl_Macintosh->Hide();
+    $btn_Macintosh->Hide();
+    $form_NonAdminBail->Hide();
+    $lbl_NonAdminBail->Hide();
+    return 0;
+}
+###############################################################################
 
 ### open the registry reader Window (HKCU) ##################################
 sub btn_RegistryReader_Click {
@@ -990,8 +1244,9 @@ sub Default_Click {
     $NonAdminBail    = $form_NonAdminBail->Checked();
     $MappedDrives    = $form_MappedDrives->Checked();
     $CrashReport     = $form_CrashReport->Checked();
+    $DefragNeeded    = $form_DefragNeeded->Checked();
 
-    $main->Hide();
+    $Main->Hide();
     return -1;
 }
 
