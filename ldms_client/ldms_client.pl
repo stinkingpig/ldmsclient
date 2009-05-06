@@ -20,7 +20,6 @@
 # making it a slightly different problem than pulling values from known keys.
 # TODO - wildcard registry keys. Need a subroutine that recurses a registry
 # path, could use for PST and printer search too.
-# TODO - include ldmsfrag functionality.
 
 package ldms_client;
 #############################################################################
@@ -71,7 +70,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.5";
+my $VERSION = "2.4.6";
 
 my $usage = <<"EOD";
 
@@ -190,6 +189,7 @@ my $DCCUWolBinary   = $Config->{_}->{DCCUWolBinary};
 my $SID             = $Config->{_}->{SID};
 my $MappedDrives    = $Config->{_}->{MappedDrives};
 my $CrashReport     = $Config->{_}->{CrashReport};
+my $DefragNeeded    = $Config->{_}->{DefragNeeded};
 
 # What HKCU keys will we look for?
 my @rr;
@@ -368,6 +368,9 @@ sub RunTests {
     }
     if ($CrashReport) {
         &CallCrashReport;
+    }
+    if ($DefragNeeded) {
+        &CallNeedsDefrag;
     }
     return 0;
 }
@@ -1672,6 +1675,59 @@ sub CallProdukey {
     return 0;
 }
 ### End of CallProdukey sub ###################################################
+
+### CallNeedsDefrag sub ######################################################
+sub CallNeedsDefrag {
+
+    my $fragged = 'UNKNOWN';
+    my $fragreco = 'UNKNOWN';
+
+    # Find the system drive letter
+    my $drive = 'c:';
+    if ($SYSTEMDRIVE) {
+        $drive = $SYSTEMDRIVE;
+    }
+    # make sure defrag.exe exists
+    my $defrag = 'c:\\windows\\system32\\defrag.exe';
+    if ($WINDIR) {
+        $defrag = $WINDIR . '\\system32\\defrag.exe';
+    }
+    # call defrag -a $drive and capture output
+    if (-e $defrag) {
+        my @defragresult = `$defrag -a $drive`;
+        # parse:
+        #C:\>defrag -a c:
+        #
+        #Windows Disk Defragmenter
+        #Copyright (c) 2003 Microsoft Corp. and Executive Software International, Inc.
+        #
+        #Analysis Report
+        #    142 GB Total,  54.28 GB (38%) Free,  0% Fragmented (1% file fragmentation)
+        #
+        #You do not need to defragment this volume.
+        foreach my $line (@defragresult) {
+            if ($line =~ m/(\d+)% Fragmented/) {
+                if ($1) {
+                    $fragged = $1;
+                } else {
+                    $fragged = 0;
+                }
+            }
+            if ($line =~ m/^You /) {
+                $fragreco = &Trim($line);
+            }
+        }
+    }
+    # Remove the colon from the drive letter
+    chop ($drive);
+    &ReportToCore("Mass Storage - Logical Drive - $drive - Fragmentation"
+        . " = $fragged");
+    &ReportToCore("Mass Storage - Logical Drive - $drive - Recommendation"
+        . " = $fragreco");
+    return 0;
+
+}
+### End of CallNeedsDefrag sub ###############################################
 
 ### CallDCCUWol sub ##########################################################
 sub CallDCCUWol {
