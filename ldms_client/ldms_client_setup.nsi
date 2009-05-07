@@ -38,6 +38,7 @@ Section "Program Files"
   File "ldms_client_setup.nsi"
   File "ldms_client_node_install.nsi"
   File "ldms_client.bat"
+  File "defrag.bat"
   File "grey.ico"
   File "desktop.ico"
   File "LDSCNHLP.INI"
@@ -65,6 +66,7 @@ Section "Uninstall"
   Delete $INSTDIR\ldms_client_regreader.exe
   Delete $INSTDIR\ldms_client_core.exe
   Delete $INSTDIR\ldms_client.bat
+  Delete $INSTDIR\defrag.bat
   Delete $INSTDIR\LDSCNHLP.INI
   Delete $INSTDIR\ldms_client.pl
   Delete $INSTDIR\ldms_client_core.pl
