@@ -5,7 +5,7 @@
 !include "MUI.nsh"
 SetCompressor /SOLID lzma
 SetCompress force
-Name "ldms_client version 2.4.5"
+Name "ldms_client version 2.4.6"
 OutFile "ldms_client_setup.exe"
 InstallDir "$PROGRAMFILES\Monkeynoodle\ldms_client"
 
@@ -36,7 +36,7 @@ Section "Program Files"
   File "ldms_client_core.perlapp"
   File "ldms_client_regreader.perlapp"
   File "ldms_client_setup.nsi"
-  File "ldms_client_install.nsi"
+  File "ldms_client_node_install.nsi"
   File "ldms_client.bat"
   File "grey.ico"
   File "desktop.ico"
@@ -48,7 +48,7 @@ Section "Program Files"
  ;Create uninstaller
  WriteUninstaller "$INSTDIR\Uninst.exe"
  
-  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\ldms_client" "DisplayName" "ldms_client 2.4.5 (remove only)"
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\ldms_client" "DisplayName" "ldms_client 2.4.6 (remove only)"
   WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\ldms_client" "UninstallString" '"$INSTDIR\uninst.exe"'
   WriteUnInstaller "uninst.exe"
 SectionEnd
@@ -73,7 +73,7 @@ Section "Uninstall"
   Delete $INSTDIR\ldms_client_core.perlapp
   Delete $INSTDIR\ldms_client_regreader.perlapp
   Delete $INSTDIR\ldms_client_setup.nsi
-  Delete $INSTDIR\ldms_client_install.nsi
+  Delete $INSTDIR\ldms_client_node_install.nsi
   Delete $INSTDIR\Uninst.exe
   RMDir "$INSTDIR"
  
