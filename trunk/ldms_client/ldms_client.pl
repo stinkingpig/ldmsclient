@@ -70,7 +70,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.6";
+my $VERSION = "2.4.7";
 
 my $usage = <<"EOD";
 
@@ -995,8 +995,18 @@ sub CallLANDeskInfo {
 sub ReadBrokerSettings {
 
     # What mode is brokerconfig in?
-    my $brokerconfigfile = Win32::GetShortPathName($PROGRAMFILES);
-    $brokerconfigfile .=
+    my $pfdir = Win32::GetShortPathName($PROGRAMFILES);
+    my $brokercrt = $pfdir .
+      "\\LANDesk\\Shared Files\\cbaroot\\broker\\broker.crt";
+    if (! -e $brokercrt ) {
+        # This machine isn't configured to use a management gateway at all
+        &ReportToCore("LANDesk Management - Broker Configuration Mode = "
+            . "Unconfigured"
+        );
+        return 0;
+    }
+    # Otherwise,  we've got something to look for.
+    my $brokerconfigfile = $pfdir .
       "\\LANDesk\\Shared Files\\cbaroot\\broker\\brokerconf.xml";
     if ( -e $brokerconfigfile ) {
         if ($DEBUG) {
