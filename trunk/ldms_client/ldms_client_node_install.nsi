@@ -15,5 +15,9 @@ Section "Program Files"
   File "ldms_client.exe"
   File "ldms_client_regreader.exe"
   File "LDSCNHLP.INI"
+
+  ReadRegStr $0 HKLM "Software\Intel\LANDesk\LDWM" "CoreServer"
+  Exec '"$INSTDIR\ldiscn32.exe" /NTT=$0:5007 /S=$0'  
 SectionEnd
  
+
