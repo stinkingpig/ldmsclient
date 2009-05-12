@@ -1,2 +1,0 @@
-If it's not configured to use te gateway at all,  report that as broker mode.
-add an inventory scan to the end of the installation routine

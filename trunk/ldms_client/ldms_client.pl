@@ -97,7 +97,10 @@ if ($PROGRAMFILES) {
 my $ldclient = $basedir . "\\LANDesk\\LDClient";
 my $sdcache = $ldclient . "\\sdmcache";
 my $file = $ldclient . '\\data\\ldms_client.dat';
-
+my $tempdir = "C:\\DOCUME~1\\ALLUSE~1\\APPLIC~1\\LANDESK\\MANAGE~1";
+if ($TEMP) {
+    $tempdir = Win32::GetShortPathName($TEMP);
+}
 my $netstatcommand = 'netstat -an';
 
 my ( $totalpstsize,  $totalostsize,  $totalnsfsize )  = 0;
@@ -1380,7 +1383,7 @@ sub CallMappedDrives {
     # Locate startasuser binary
     my $startasuser           = $ldclient . "\\startasuser.exe";
     my $ldms_client_regreader = $ldclient . "\\ldms_client_regreader.exe";
-    my $mdtemp                = $ldclient . "\\mdtemp.txt";
+    my $mdtemp                = $tempdir . "\\mdtemp.txt";
 
     if ( -e $startasuser ) {
         if ( -e $ldms_client_regreader ) {
@@ -1450,7 +1453,7 @@ sub CallRegistryReader {
     # Locate startasuser binary
     my $startasuser           = $ldclient . "\\startasuser.exe";
     my $ldms_client_regreader = $ldclient . "\\ldms_client_regreader.exe";
-    my $rrtemp                = $ldclient . "\\rrtemp.txt";
+    my $rrtemp                = $tempdir . "\\rrtemp.txt";
     if ( -e $startasuser ) {
         if ( -e $ldms_client_regreader ) {
 

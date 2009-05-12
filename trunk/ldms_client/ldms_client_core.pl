@@ -49,7 +49,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.6";
+my $VERSION = "2.4.7";
 
 my (
     $ldmain,              $ldlogon,              $updatemessage,
@@ -587,6 +587,16 @@ sub Show_MainWindow {
         -size => [ 180, 20 ],
     );
 
+    # spawn the registry key configuration window
+    $btn_RegistryReader = $Main->AddButton(
+        -name    => "btn_RegistryReader",
+        -text    => "Configure Registry Keys",
+        -pos     => [ $lbl_RegistryReader->Width() + $leftmargin, $nexthoriz ],
+        -onClick => \&Show_RRWindow,
+    );
+
+    # End RegistryReader row
+
     # Begin MappedDrives row
     $form_MappedDrives = $Main->AddCheckbox(
         -name    => "mappeddrives_field",
@@ -603,16 +613,6 @@ sub Show_MainWindow {
     );
 
     # End MappedDrives row
-
-    # spawn the registry key configuration window
-    $btn_RegistryReader = $Main->AddButton(
-        -name    => "btn_RegistryReader",
-        -text    => "Configure Registry Keys",
-        -pos     => [ $lbl_RegistryReader->Width() + $leftmargin, $nexthoriz ],
-        -onClick => \&Show_RRWindow,
-    );
-
-    # End RegistryReader row
 
     # Begin Profile Size row
     $form_FindProfileSize = $Main->AddCheckbox(
