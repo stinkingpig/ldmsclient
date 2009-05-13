@@ -15,6 +15,7 @@ use warnings;
 use Env;
 use IO::Handle;
 use Win32::TieRegistry ( Delimiter => "/", ArrayValues => 1, qw(KEY_READ) );
+use Win32 qw(CSIDL_COMMON_APPDATA);
 use Carp ();
 local $SIG{__WARN__} = \&Carp::cluck;
 
@@ -24,7 +25,7 @@ local $SIG{__WARN__} = \&Carp::cluck;
 my ( $keyfile ) = shift;
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
 
-my $VERSION = "2.3.5";
+my $VERSION = "2.3.6";
 
 my $usage = <<"EOD";
 
@@ -41,9 +42,16 @@ http://www.droppedpackets.org/inventory-and-slm/ldms_client/
 EOD
 
 # Prepare logging system
-my $logfile = $PROGRAMFILES . "/LANDesk/LDClient/ldms_client_regreader.log";
+my $localappdata;
+if ($ALLUSERSPROFILE) {
+    $localappdata = $ALLUSERSPROFILE;
+} else {
+    $localappdata = Win32::GetFolderPath( CSIDL_COMMON_APPDATA());
+}
+my $tempdir = Win32::GetShortPathName($localappdata);
+my $logfile = "$tempdir\\ldms_client_regreader.log";
 my $LOG;
-open( $LOG, '>', $logfile ) or croak("Cannot open $logfile - $!");
+open( $LOG, '>', $logfile ) or Carp::croak("Cannot open $logfile - $!");
 close $LOG;
 
 my ( $value, $type, $KEYFILE, $key, $subkey );
@@ -73,27 +81,29 @@ my $RegKey = $Registry->{"HKEY_CURRENT_USER/"}
 my $results;
 
 while (<$KEYFILE>) {
-    chomp;
-    ( $key, $subkey ) = split(/,/x);
-    if ( defined($key) && defined($subkey) ) {
-        if ($subkey =~ m/\(default\)/ix ) {
-            $subkey = "";
-        }        
-        $key = "HKEY_CURRENT_USER/" . $key;
-        $RegKey = $Registry->{"$key"};
-        if ( $RegKey ) {
-            ( $value, $type ) = $RegKey->GetValue($subkey)
-              or &LogWarn("Can't read $key $subkey key: $^E");
-            if ( defined($value) ) {
-                $value = &ParseRegistryValue( $type, $value );
-             }
-             else {
-                $value = "NULL";
-             }
-             if ($subkey eq "") { $subkey = "(Default)"; }
-            $results .= "$key,$subkey,$value\n";
-        }
+  chomp;
+  ( $key, $subkey ) = split(/,/x);
+  if ( defined($key) && defined($subkey) ) {
+    if ($subkey =~ m/\(default\)/ix ) {
+      $subkey = "";
     }
+    $key = "HKEY_CURRENT_USER/" . $key;
+    $RegKey = $Registry->{"$key"};
+    &Log("Reading $key,  key=$subkey");
+    if ( $RegKey ) {
+      ( $value, $type ) = $RegKey->GetValue($subkey)
+	or &LogWarn("Can't read $key $subkey key: $^E");
+      if ( defined($value) ) {
+	$value = &ParseRegistryValue( $type, $value );
+      }
+      else {
+	&Log("defined() returned false on ->$value<-");
+	$value = "NULL";
+      }
+      if ($subkey eq "") { $subkey = "(Default)"; }
+      $results .= "$key,$subkey,$value\n";
+    }
+  }
 }
 close($KEYFILE);
 open( $KEYFILE, '>', "$keyfile" )
@@ -144,6 +154,8 @@ sub LogDie {
 ### ParseRegistryValue ######################################################
 sub ParseRegistryValue {
     my ( $type, $value ) = @_;
+    &Log("ParseRegistyValue got type=$type,value=$value");
+    $type=&RegistryType2String($type);
     if (   $type eq "REG_SZ"
         or $type eq "REG_EXPAND_SZ"
         or $type eq "REG_MULTI_SZ" )
@@ -163,7 +175,37 @@ sub ParseRegistryValue {
     else {
         $value = "NULL";
     }
+
     return $value;
 }
 ### ParseRegistryValue ######################################################
 
+
+sub RegistryType2String {
+  my $type= shift;
+  if ($type =~ m/REG_/) { 
+      return $type; 
+  }
+  my $typestr="UNKNOWN";
+  # from http://msdn.microsoft.com/en-us/library/ms724884(VS.85).aspx
+  my  %regtypes = (
+		   0, "REG_NONE",
+		   1,"REG_SZ",
+		   2,"REG_EXPAND_SZ",
+		   3,"REG_BINARY",
+		   4,"REG_DWORD",
+		   4,"REG_DWORD_LITTLE_ENDIAN",
+		   5,"REG_DWORD_BIG_ENDIAN",
+		   6,"REG_LINK",
+		   7,"REG_MULTI_SZ",
+		   8,"REG_RESOURCE_LIST",
+		   9,"REG_FULL_RESOURCE_DESCRIPTOR",
+		   10,"REG_RESOURCE_REQUIREMENTS_LIST",
+		   11,"REG_QWORD",
+		   11,"REG_QWORD_LITTLE_ENDIAN"
+		  );
+
+  $typestr=$regtypes{$type};
+  &Log("RegistryType2String for $type=$typestr");
+  return $typestr;
+}
