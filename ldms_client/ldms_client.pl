@@ -14,9 +14,9 @@
 # Subsystem\Profiles\Default Outlook Profile (or one level up) and we need to look
 # for all values of 001f6700 (001e6700 for W2K) and then convert the reg_binary
 # values into text.
-# TODO - Oh, hey, how about a feature request while I am at it... any way to gather 
-# information on mapped network printers?  It is in HKCU under Printers\Connections 
-# but each printer is set up with its own key based on the network printer path 
+# TODO - Oh, hey, how about a feature request while I am at it... any way to gather
+# information on mapped network printers?  It is in HKCU under Printers\Connections
+# but each printer is set up with its own key based on the network printer path
 # making it a slightly different problem than pulling values from known keys.
 # TODO - wildcard registry keys. Need a subroutine that recurses a registry
 # path, could use for PST and printer search too.
@@ -90,21 +90,22 @@ EOD
 
 Carp::croak($usage) if $help;
 
-my $core = &FindCoreName;
+my $core        = &FindCoreName;
 my $strComputer = '.';
-my $basedir = "C:\\Progra~1";
+my $basedir     = "C:\\Progra~1";
 if ($PROGRAMFILES) {
     $basedir = Win32::GetShortPathName($PROGRAMFILES);
 }
 my $ldclient = $basedir . "\\LANDesk\\LDClient";
-my $sdcache = $ldclient . "\\sdmcache";
-my $file = $ldclient . '\\data\\ldms_client.dat';
+my $sdcache  = $ldclient . "\\sdmcache";
+my $file     = $ldclient . '\\data\\ldms_client.dat';
 
 my $localappdata;
 if ($ALLUSERSPROFILE) {
     $localappdata = $ALLUSERSPROFILE;
-} else {
-    $localappdata = Win32::GetFolderPath( CSIDL_COMMON_APPDATA());
+}
+else {
+    $localappdata = Win32::GetFolderPath( CSIDL_COMMON_APPDATA() );
 }
 my $tempdir = Win32::GetShortPathName($localappdata);
 
@@ -264,7 +265,8 @@ sub IsAdmin {
 ### Find my core server #####################################################
 sub FindCoreName {
     my $output = "";
-    # Tie registry to find 
+
+    # Tie registry to find
     # HKEY_LOCAL_MACHINE\SOFTWARE\Intel\LANDesk\LDWM CoreServer
     $RegKey = $Registry->{"HKEY_LOCAL_MACHINE/Software/Intel/LANDesk/LDWM"};
     if ($RegKey) {
@@ -389,16 +391,18 @@ sub RunTests {
 ### Ask WMI if this is Dell hardware we're on #################################
 sub IsDell {
     my $output = 'unknown';
-    my $SystemList = $objWMIService->ExecQuery("SELECT * FROM Win32_ComputerSystem");
+    my $SystemList =
+      $objWMIService->ExecQuery("SELECT * FROM Win32_ComputerSystem");
     if ( $SystemList->Count > 0 ) {
         foreach my $System ( in $SystemList) {
             $output = $System->Manufacturer;
             if ($DEBUG) { &Log("IsDell found $output"); }
         }
     }
-    if ($output =~ m/DELL/i) {
+    if ( $output =~ m/DELL/i ) {
         return 1;
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -409,6 +413,7 @@ sub IsDell {
 sub CallCrashReport {
 
     if ($DEBUG) { &Log("CallCrashReport looking for system crashes"); }
+
     # I'll need a handle to do this with
     my $EventViewerhandle = Win32::EventLog->new( "System", $COMPUTERNAME )
       or &LogWarn("Initialization: Can't open System EventLog");
@@ -427,32 +432,30 @@ sub CallCrashReport {
     {
         if ( $Event{TimeGenerated} >= $TIME_LIMIT ) {
             if ( $Event{Source} eq "EventLog" && $Event{EventType} == 1 ) {
-                my $eventid = eval($Event{EventID} & 0xffff);
+                my $eventid = eval( $Event{EventID} & 0xffff );
                 if ( $eventid == 6008 ) {
                     $BSODcount++;
                     if ($DEBUG) {
                         my $text = $Event{Strings};
                         if ( defined($text) ) {
-                            &Log("Crash detected: $text" );
+                            &Log("Crash detected: $text");
                         }
                     }
                 }
             }
-       }
+        }
     }
+
     # Let the eventlog go
     $EventViewerhandle->Close();
 
     # Log what happened
     if ( $BSODcount > 0 ) {
-        &ReportToCore(
-        "System - Crashes in last seven days = $BSODcount"
-        );
+        &ReportToCore( "System - Crashes in last seven days = $BSODcount" );
     }
     return 0;
 }
 ###############################################################################
-
 
 ### Wrapper for getting Battery Information from two different WMI points #####
 sub CallBattery {
@@ -1006,18 +1009,19 @@ sub ReadBrokerSettings {
 
     # What mode is brokerconfig in?
     my $pfdir = Win32::GetShortPathName($PROGRAMFILES);
-    my $brokercrt = $pfdir .
-      "\\LANDesk\\Shared Files\\cbaroot\\broker\\broker.crt";
-    if (! -e $brokercrt ) {
+    my $brokercrt =
+      $pfdir . "\\LANDesk\\Shared Files\\cbaroot\\broker\\broker.crt";
+    if ( !-e $brokercrt ) {
+
         # This machine isn't configured to use a management gateway at all
-        &ReportToCore("LANDesk Management - Broker Configuration Mode = "
-            . "Unconfigured"
-        );
+        &ReportToCore( "LANDesk Management - Broker Configuration Mode = "
+              . "Unconfigured" );
         return 0;
     }
+
     # Otherwise,  we've got something to look for.
-    my $brokerconfigfile = $pfdir .
-      "\\LANDesk\\Shared Files\\cbaroot\\broker\\brokerconf.xml";
+    my $brokerconfigfile =
+      $pfdir . "\\LANDesk\\Shared Files\\cbaroot\\broker\\brokerconf.xml";
     if ( -e $brokerconfigfile ) {
         if ($DEBUG) {
             &Log("CallLANDeskInfo: brokerconfigfile is $brokerconfigfile.");
@@ -1411,6 +1415,14 @@ sub CallMappedDrives {
               . ' ///timeout=10 ///silent '
               . $ldms_client_regreader . ' '
               . $mdtemp;
+
+            if ($DEBUG) {
+                &Log("Set $mdtemp writable for Everyone");
+            }
+
+           #set change access for everyone to $rrtemp file
+           # FIXME: Is Everyone called Everyone on non english windows versions?
+            system("cacls $mdtemp /E /G Everyone:C");
             if ($DEBUG) {
                 &Log("CallMappedDrives: $mappeddriveresult");
             }
@@ -1503,12 +1515,13 @@ sub CallRegistryReader {
             if ($DEBUG) {
                 &Log("CallRegistryReader: $hkcuresult");
             }
-	    if ($DEBUG) {
-	      &Log("Set $rrtemp writable for Everyone");
-	    }
-	    #set change access for everyone to $rrtemp file
-	    # FIXME: Is Everyone called Everyone on non english windows versions?
-	    system("cacls $rrtemp /E /G Everyone:C");
+            if ($DEBUG) {
+                &Log("Set $rrtemp writable for Everyone");
+            }
+
+           #set change access for everyone to $rrtemp file
+           # FIXME: Is Everyone called Everyone on non english windows versions?
+            system("cacls $rrtemp /E /G Everyone:C");
             system($hkcuresult);
             open( $RRTEMP, '<', "$rrtemp" )
               or &LogWarn("Cannot open $rrtemp for reading: $!");
@@ -1520,12 +1533,12 @@ sub CallRegistryReader {
                           . "subkey is $subkey, "
                           . "value is $value" );
                 }
-		if ($subkey) { 
-		  chomp($subkey);
-		}
-		if ($value) {
-		  chomp($value);
-		}
+                if ($subkey) {
+                    chomp($subkey);
+                }
+                if ($value) {
+                    chomp($value);
+                }
                 &ReportToCore(
                     "Custom Data - HKCU - $hkcukey - $subkey = $value");
             }
@@ -1709,7 +1722,7 @@ sub CallProdukey {
 ### CallNeedsDefrag sub ######################################################
 sub CallNeedsDefrag {
 
-    my $fragged = 'UNKNOWN';
+    my $fragged  = 'UNKNOWN';
     my $fragreco = 'UNKNOWN';
 
     # Find the system drive letter
@@ -1717,43 +1730,48 @@ sub CallNeedsDefrag {
     if ($SYSTEMDRIVE) {
         $drive = $SYSTEMDRIVE;
     }
+
     # make sure defrag.exe exists
     my $defrag = 'c:\\windows\\system32\\defrag.exe';
     if ($WINDIR) {
         $defrag = $WINDIR . '\\system32\\defrag.exe';
     }
+
     # call defrag -a $drive and capture output
-    if (-e $defrag) {
+    if ( -e $defrag ) {
         my @defragresult = `$defrag -a $drive`;
-        # parse:
-        #C:\>defrag -a c:
-        #
-        #Windows Disk Defragmenter
-        #Copyright (c) 2003 Microsoft Corp. and Executive Software International, Inc.
-        #
-        #Analysis Report
-        #    142 GB Total,  54.28 GB (38%) Free,  0% Fragmented (1% file fragmentation)
-        #
-        #You do not need to defragment this volume.
+
+ # parse:
+ #C:\>defrag -a c:
+ #
+ #Windows Disk Defragmenter
+ #Copyright (c) 2003 Microsoft Corp. and Executive Software International, Inc.
+ #
+ #Analysis Report
+ #    142 GB Total,  54.28 GB (38%) Free,  0% Fragmented (1% file fragmentation)
+ #
+ #You do not need to defragment this volume.
         foreach my $line (@defragresult) {
-            if ($line =~ m/(\d+)% Fragmented/) {
+            if ( $line =~ m/(\d+)% Fragmented/ ) {
                 if ($1) {
                     $fragged = $1;
-                } else {
+                }
+                else {
                     $fragged = 0;
                 }
             }
-            if ($line =~ m/^You /) {
+            if ( $line =~ m/^You / ) {
                 $fragreco = &Trim($line);
             }
         }
     }
+
     # Remove the colon from the drive letter
-    chop ($drive);
-    &ReportToCore("Mass Storage - Logical Drive - $drive - Fragmentation"
-        . " = $fragged");
-    &ReportToCore("Mass Storage - Logical Drive - $drive - Recommendation"
-        . " = $fragreco");
+    chop($drive);
+    &ReportToCore( "Mass Storage - Logical Drive - $drive - Fragmentation"
+          . " = $fragged" );
+    &ReportToCore( "Mass Storage - Logical Drive - $drive - Recommendation"
+          . " = $fragreco" );
     return 0;
 
 }
