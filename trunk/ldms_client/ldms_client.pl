@@ -1650,9 +1650,9 @@ sub CallProdukey {
     }
 
     # Locate produkey binary
-    my $produkey = $ldclient . "/produkey.exe";
+    my $produkey = $ldclient . "\\produkey.exe";
     if ($ProdukeyBinary) { $produkey = $ProdukeyBinary; }
-    my $produkeydat = $ldclient . "/produkeydat.csv";
+    my $produkeydat = $ldclient . "\\produkeydat.csv";
     if ( -e $produkey ) {
 
         my $version = GetFileVersionInfo($produkey);
@@ -1741,7 +1741,7 @@ sub CallNeedsDefrag {
     if ( -e $defrag ) {
         my @defragresult = `$defrag -a $drive`;
 
- # parse:
+ # parse the output:
  #C:\>defrag -a c:
  #
  #Windows Disk Defragmenter
@@ -1751,7 +1751,26 @@ sub CallNeedsDefrag {
  #    142 GB Total,  54.28 GB (38%) Free,  0% Fragmented (1% file fragmentation)
  #
  #You do not need to defragment this volume.
+ #
+ # Oh boy, Vista's output is different:
+ #C:\Program Files\LANDesk\LDClient>defrag -a c:
+ #Windows Disk Defragmenter
+ #Copyright (c) 2006 Microsoft Corp.
+ #
+ #Analysis report for volume C:
+ #
+ #  Volume size                         = 149 GB
+ #  Free space                          = 69.60 GB
+ #  Largest free space extent           = 53.77 GB
+ #  Percent file fragmentation          = 0 %
+ #
+ #  Note: On NTFS volumes, file fragments larger than 64MB are not included in t
+ #he fragmentation statistics
+ #
+ #  You do not need to defragment this volume.
+ # 
         foreach my $line (@defragresult) {
+            # XP / Server 2003 output
             if ( $line =~ m/(\d+)% Fragmented/ ) {
                 if ($1) {
                     $fragged = $1;
@@ -1761,6 +1780,21 @@ sub CallNeedsDefrag {
                 }
             }
             if ( $line =~ m/^You / ) {
+                $fragreco = &Trim($line);
+            }
+            # Vista output
+            if ( $line =~ m/file fragmentation\s+=\s+(\d+)\s+%/ ) {
+                if ($1) {
+                    $fragged = $1;
+                }
+                else {
+                    $fragged = 0;
+                }
+            }
+            if ( $line =~ m/^You / ) {
+                $fragreco = &Trim($line);
+            }
+            if ( $line =~ m/^\s+You / ) {
                 $fragreco = &Trim($line);
             }
         }
