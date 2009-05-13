@@ -36,6 +36,7 @@ use Win32;
 use Win32::EventLog;
 use Win32API::Net;
 use Win32::File::VersionInfo;
+use Win32::FileSecurity;
 use Win32::OLE qw(in);
 use Win32::OLE::Variant;
 use Win32::Security::SID;
@@ -50,6 +51,7 @@ use Win32::OLE::NLS qw(:TIME
 );
 use Win32::OLE::Variant;
 use Win32::TieRegistry ( Delimiter => "/", ArrayValues => 1, qw(KEY_READ) );
+use Win32 qw(CSIDL_COMMON_APPDATA);
 use Config::Tiny;
 use Number::Bytes::Human qw(format_bytes);
 use File::Find;
@@ -70,7 +72,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.7";
+my $VERSION = "2.4.8";
 
 my $usage = <<"EOD";
 
@@ -86,7 +88,7 @@ http://www.droppedpackets.org/inventory-and-slm/ldms_client/
 
 EOD
 
-croak($usage) if $help;
+Carp::croak($usage) if $help;
 
 my $core = &FindCoreName;
 my $strComputer = '.';
@@ -97,10 +99,15 @@ if ($PROGRAMFILES) {
 my $ldclient = $basedir . "\\LANDesk\\LDClient";
 my $sdcache = $ldclient . "\\sdmcache";
 my $file = $ldclient . '\\data\\ldms_client.dat';
-my $tempdir = "C:\\DOCUME~1\\ALLUSE~1\\APPLIC~1\\LANDESK\\MANAGE~1";
-if ($TEMP) {
-    $tempdir = Win32::GetShortPathName($TEMP);
+
+my $localappdata;
+if ($ALLUSERSPROFILE) {
+    $localappdata = $ALLUSERSPROFILE;
+} else {
+    $localappdata = Win32::GetFolderPath( CSIDL_COMMON_APPDATA());
 }
+my $tempdir = Win32::GetShortPathName($localappdata);
+
 my $netstatcommand = 'netstat -an';
 
 my ( $totalpstsize,  $totalostsize,  $totalnsfsize )  = 0;
@@ -1496,6 +1503,12 @@ sub CallRegistryReader {
             if ($DEBUG) {
                 &Log("CallRegistryReader: $hkcuresult");
             }
+	    if ($DEBUG) {
+	      &Log("Set $rrtemp writable for Everyone");
+	    }
+	    #set change access for everyone to $rrtemp file
+	    # FIXME: Is Everyone called Everyone on non english windows versions?
+	    system("cacls $rrtemp /E /G Everyone:C");
             system($hkcuresult);
             open( $RRTEMP, '<', "$rrtemp" )
               or &LogWarn("Cannot open $rrtemp for reading: $!");
@@ -1507,8 +1520,12 @@ sub CallRegistryReader {
                           . "subkey is $subkey, "
                           . "value is $value" );
                 }
-                chomp($subkey);
-                chomp($value);
+		if ($subkey) { 
+		  chomp($subkey);
+		}
+		if ($value) {
+		  chomp($value);
+		}
                 &ReportToCore(
                     "Custom Data - HKCU - $hkcukey - $subkey = $value");
             }
