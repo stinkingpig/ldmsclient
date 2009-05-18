@@ -1010,7 +1010,7 @@ sub ReadBrokerSettings {
     # What mode is brokerconfig in?
     my $pfdir = Win32::GetShortPathName($PROGRAMFILES);
     my $brokercrt =
-      $pfdir . "\\LANDesk\\Shared Files\\cbaroot\\broker\\broker.crt";
+      $pfdir . "\\LANDesk\\Shared\ Files\\cbaroot\\broker\\broker.crt";
     if ( !-e $brokercrt ) {
 
         # This machine isn't configured to use a management gateway at all
