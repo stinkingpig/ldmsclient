@@ -2102,7 +2102,7 @@ sub atoi {
 
 ### Report something subroutine ##############################################
 sub ReportToCore {
-    my $msg = shift;
+    my $msg = &Trim(shift);
     if ($msg) {
         $msg =~ m/(.*)\s=\s(.*)/x;
         if ( defined($1) && length($2) >= 1 ) {

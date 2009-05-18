@@ -49,7 +49,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.7";
+my $VERSION = "2.4.8";
 
 my (
     $ldmain,              $ldlogon,              $updatemessage,
