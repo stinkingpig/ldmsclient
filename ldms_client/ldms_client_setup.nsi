@@ -5,7 +5,7 @@
 !include "MUI.nsh"
 SetCompressor /SOLID lzma
 SetCompress force
-Name "ldms_client version 2.4.7"
+Name "ldms_client version 2.4.8"
 OutFile "ldms_client_setup.exe"
 InstallDir "$PROGRAMFILES\Monkeynoodle\ldms_client"
 
@@ -49,7 +49,7 @@ Section "Program Files"
  ;Create uninstaller
  WriteUninstaller "$INSTDIR\Uninst.exe"
  
-  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\ldms_client" "DisplayName" "ldms_client 2.4.7 (remove only)"
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\ldms_client" "DisplayName" "ldms_client 2.4.8 (remove only)"
   WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\ldms_client" "UninstallString" '"$INSTDIR\uninst.exe"'
   WriteUnInstaller "uninst.exe"
 SectionEnd
