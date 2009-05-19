@@ -72,7 +72,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.8";
+my $VERSION = "2.4.9";
 
 my $usage = <<"EOD";
 
@@ -115,7 +115,7 @@ my ( $totalpstsize,  $totalostsize,  $totalnsfsize )  = 0;
 my ( $totalpstcount, $totalostcount, $totalnsfcount ) = 0;
 
 # File handles I'll need
-my ( $FILE, $PSFILE, $PKDFILE, $RRTEMP, $MDTEMP );
+my ( $FILE, $PSFILE, $PKDFILE, $RRTEMP, $RRLOG, $MDTEMP, $MDLOG );
 
 # Global variables
 my ($RegKey);
@@ -1397,6 +1397,7 @@ sub CallMappedDrives {
     my $startasuser           = $ldclient . "\\startasuser.exe";
     my $ldms_client_regreader = $ldclient . "\\ldms_client_regreader.exe";
     my $mdtemp                = $tempdir . "\\mdtemp.txt";
+    my $mdlog                 = $mdtemp . ".log";
 
     if ( -e $startasuser ) {
         if ( -e $ldms_client_regreader ) {
@@ -1412,6 +1413,12 @@ sub CallMappedDrives {
                 }
             }
             close($MDTEMP);
+
+            # Prepare my log file
+            open( $MDLOG, '>', "$mdlog" )
+              or &LogWarn("Cannot open $mdlog for writing: $!");
+            close($MDLOG);
+
             my $mappeddriveresult =
                 $startasuser
               . ' ///timeout=10 ///silent '
@@ -1422,9 +1429,13 @@ sub CallMappedDrives {
                 &Log("Set $mdtemp writable for Everyone");
             }
 
-           #set change access for everyone to $rrtemp file
+           #set change access for everyone to $mdtemp file
            # FIXME: Is Everyone called Everyone on non english windows versions?
             system("cacls $mdtemp /E /G Everyone:C");
+           #set change access for everyone to $mdlog file
+           # FIXME: Is Everyone called Everyone on non english windows versions?
+            system("cacls $mdlog /E /G Everyone:C");
+
             if ($DEBUG) {
                 &Log("CallMappedDrives: $mappeddriveresult");
             }
@@ -1475,6 +1486,7 @@ sub CallRegistryReader {
     my $startasuser           = $ldclient . "\\startasuser.exe";
     my $ldms_client_regreader = $ldclient . "\\ldms_client_regreader.exe";
     my $rrtemp                = $tempdir . "\\rrtemp.txt";
+    my $rrlog                 = $rrtemp . ".log";
     if ( -e $startasuser ) {
         if ( -e $ldms_client_regreader ) {
 
@@ -1509,6 +1521,12 @@ sub CallRegistryReader {
                 }
             }
             close($RRTEMP);
+
+            # Prepare my log file
+            open( $RRLOG, '>', "$rrlog" )
+              or &LogWarn("Cannot open $rrlog for writing: $!");
+            close($RRLOG);
+
             my $hkcuresult =
                 $startasuser
               . ' ///timeout=10 ///silent '
@@ -1524,6 +1542,10 @@ sub CallRegistryReader {
            #set change access for everyone to $rrtemp file
            # FIXME: Is Everyone called Everyone on non english windows versions?
             system("cacls $rrtemp /E /G Everyone:C");
+           #set change access for everyone to $rrlog file
+           # FIXME: Is Everyone called Everyone on non english windows versions?
+            system("cacls $rrlog /E /G Everyone:C");
+
             system($hkcuresult);
             open( $RRTEMP, '<', "$rrtemp" )
               or &LogWarn("Cannot open $rrtemp for reading: $!");

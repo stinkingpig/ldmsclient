@@ -1,2 +1,0 @@
-Further fixes to registry reading, restricted users, data cleanliness -- Thanks,  Bjørn Torsteinsen.
-Vista compatibility for defrag test
