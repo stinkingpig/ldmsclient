@@ -15,7 +15,6 @@ use warnings;
 use Env;
 use IO::Handle;
 use Win32::TieRegistry ( Delimiter => "/", ArrayValues => 1, qw(KEY_READ) );
-use Win32 qw(CSIDL_COMMON_APPDATA);
 use Carp ();
 local $SIG{__WARN__} = \&Carp::cluck;
 
@@ -25,7 +24,7 @@ local $SIG{__WARN__} = \&Carp::cluck;
 my ( $keyfile ) = shift;
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
 
-my $VERSION = "2.3.6";
+my $VERSION = "2.3.7";
 
 my $usage = <<"EOD";
 
@@ -42,14 +41,7 @@ http://www.droppedpackets.org/inventory-and-slm/ldms_client/
 EOD
 
 # Prepare logging system
-my $localappdata;
-if ($ALLUSERSPROFILE) {
-    $localappdata = $ALLUSERSPROFILE;
-} else {
-    $localappdata = Win32::GetFolderPath( CSIDL_COMMON_APPDATA());
-}
-my $tempdir = Win32::GetShortPathName($localappdata);
-my $logfile = "$tempdir\\ldms_client_regreader.log";
+my $logfile = $keyfile . ".log";
 my $LOG;
 open( $LOG, '>', $logfile ) or Carp::croak("Cannot open $logfile - $!");
 close $LOG;
