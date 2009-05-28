@@ -24,6 +24,7 @@ use Win32::GUI();
 use Win32::EventLog::Message;
 use Win32::TieRegistry ( Delimiter => "/", ArrayValues => 1 );
 use Win32::WebBrowser;
+use Win32::Service;
 use Carp ();
 use Config::Tiny;
 use LWP::Simple qw(!head !getprint !getstore !mirror);
@@ -52,58 +53,58 @@ GetOptions(
 my $VERSION = "2.4.9";
 
 my (
-    $ldmain,              $ldlogon,              $updatemessage,
-    $Battery,             $Netstat,              $PolicyList,
-    $FindPST,             $NICDuplex,            $EnumerateGroups,
-    $LANDeskInfo,         $RegistryReader,       $Produkey,
-    $SID,                 $RegistryInfo,         $Macintosh,
-    $FindNSF,             $FindProfileSize,      $AggroMailSearch,
-    $ProdukeyBinary,      $DCCUWol,              $DCCUWolBinary,
-    $MacNetstat,          $MacOptical,           $Main,
-    $MainTab,             $btn_schema, 
-    $w,                   $h,                    $ncw,
-    $nch,                 $dw,                   $dh,
-    $desk,                $wx,                   $wy,
-    $btn_default,         $btn_cancel,           $btn_help,
-    $sb,                  $lbl_Instructions,     $lbl_Battery,
-    $lbl_Netstat,         $lbl_PolicyList,       $lbl_FindPST,
-    $lbl_NICDuplex,       $lbl_EnumerateGroups,  $lbl_LANDeskInfo,
-    $lbl_RegistryReader,  $lbl_RegistryInfo,     $lbl_Produkey,
-    $lbl_SID,             $lbl_Macintosh,        $lbl_FindNSF,
-    $lbl_FindProfileSize, $lbl_AggroMailSearch,  $lbl_DCCUWol,
-    $btn_RegistryReader,  $btn_RegistryInfo,     $btn_Macintosh,
-    $form_Battery,        $form_Netstat,         $form_PolicyList,
-    $form_FindPST,        $form_NICDuplex,       $form_EnumerateGroups,
-    $form_LANDeskInfo,    $form_RegistryReader,  $form_Produkey,
-    $form_SID,            $form_RegistryInfo,    $form_Macintosh,
-    $form_FindNSF,        $form_FindProfileSize, $form_AggroMailSearch,
-    $form_ProdukeyBinary, $form_DCCUWol,         $form_DCCUWolBinary,
-    $lbl_MacInstructions, $lbl_MacNetstat,       $lbl_MacOptical,
-    $form_MacNetstat,     $form_MacOptical,      $macmain,
-    $macw,                $mach,                 $macncw,
-    $macnch,              $macwx,                $macwy,
-    $btn_macdefault,      $btn_maccancel,        $btn_machelp,
-    $macsb,               @rr,                   $rrmain,
-    $rrw,                 $rrh,                  $rrncw,
-    $rrnch,               $rrwx,                 $rrwy,
-    $btn_rrdefault,       $btn_rrcancel,         $btn_rrhelp,
-    $rrsb,                $lbl_rrInstructions,   $form_rr1,
-    $form_rr2,            $form_rr3,             $form_rr4,
-    $form_rr5,            $form_rr6,             $form_rr7,
-    $form_rr8,            $form_rr9,             $form_rr10,
-    @ri,                  $rimain,               $riw,
-    $rih,                 $rincw,                $rinch,
-    $riwx,                $riwy,                 $btn_ridefault,
-    $btn_ricancel,        $btn_rihelp,           $risb,
-    $lbl_riInstructions,  $form_ri1,             $form_ri2,
-    $form_ri3,            $form_ri4,             $form_ri5,
-    $form_ri6,            $form_ri7,             $form_ri8,
-    $form_ri9,            $form_ri10,            $form_NonAdminBail,
-    $lbl_NonAdminBail,    $NonAdminBail,         $FindOST,
-    $lbl_FindOST,         $form_FindOST,         $MappedDrives,
-    $lbl_MappedDrives,    $form_MappedDrives,    $CrashReport,
-    $lbl_CrashReport,     $form_CrashReport, $DefragNeeded, 
-    $lbl_DefragNeeded,  $form_DefragNeeded
+    $ldmain,               $ldlogon,              $updatemessage,
+    $Battery,              $Netstat,              $PolicyList,
+    $FindPST,              $NICDuplex,            $EnumerateGroups,
+    $LANDeskInfo,          $RegistryReader,       $Produkey,
+    $SID,                  $RegistryInfo,         $Macintosh,
+    $FindNSF,              $FindProfileSize,      $AggroMailSearch,
+    $ProdukeyBinary,       $DCCUWol,              $DCCUWolBinary,
+    $MacNetstat,           $MacOptical,           $Main,
+    $MainTab,              $btn_schema,           $w,
+    $h,                    $ncw,                  $nch,
+    $dw,                   $dh,                   $desk,
+    $wx,                   $wy,                   $btn_default,
+    $btn_cancel,           $btn_help,             $sb,
+    $lbl_Instructions,     $lbl_Battery,          $lbl_Netstat,
+    $lbl_PolicyList,       $lbl_FindPST,          $lbl_NICDuplex,
+    $lbl_EnumerateGroups,  $lbl_LANDeskInfo,      $lbl_RegistryReader,
+    $lbl_RegistryInfo,     $lbl_Produkey,         $lbl_SID,
+    $lbl_Macintosh,        $lbl_FindNSF,          $lbl_FindProfileSize,
+    $lbl_AggroMailSearch,  $lbl_DCCUWol,          $btn_RegistryReader,
+    $btn_RegistryInfo,     $btn_Macintosh,        $form_Battery,
+    $form_Netstat,         $form_PolicyList,      $form_FindPST,
+    $form_NICDuplex,       $form_EnumerateGroups, $form_LANDeskInfo,
+    $form_RegistryReader,  $form_Produkey,        $form_SID,
+    $form_RegistryInfo,    $form_Macintosh,       $form_FindNSF,
+    $form_FindProfileSize, $form_AggroMailSearch, $form_ProdukeyBinary,
+    $form_DCCUWol,         $form_DCCUWolBinary,   $lbl_MacInstructions,
+    $lbl_MacNetstat,       $lbl_MacOptical,       $form_MacNetstat,
+    $form_MacOptical,      $macmain,              $macw,
+    $mach,                 $macncw,               $macnch,
+    $macwx,                $macwy,                $btn_macdefault,
+    $btn_maccancel,        $btn_machelp,          $macsb,
+    @rr,                   $rrmain,               $rrw,
+    $rrh,                  $rrncw,                $rrnch,
+    $rrwx,                 $rrwy,                 $btn_rrdefault,
+    $btn_rrcancel,         $btn_rrhelp,           $rrsb,
+    $lbl_rrInstructions,   $form_rr1,             $form_rr2,
+    $form_rr3,             $form_rr4,             $form_rr5,
+    $form_rr6,             $form_rr7,             $form_rr8,
+    $form_rr9,             $form_rr10,            @ri,
+    $rimain,               $riw,                  $rih,
+    $rincw,                $rinch,                $riwx,
+    $riwy,                 $btn_ridefault,        $btn_ricancel,
+    $btn_rihelp,           $risb,                 $lbl_riInstructions,
+    $form_ri1,             $form_ri2,             $form_ri3,
+    $form_ri4,             $form_ri5,             $form_ri6,
+    $form_ri7,             $form_ri8,             $form_ri9,
+    $form_ri10,            $form_NonAdminBail,    $lbl_NonAdminBail,
+    $NonAdminBail,         $FindOST,              $lbl_FindOST,
+    $form_FindOST,         $MappedDrives,         $lbl_MappedDrives,
+    $form_MappedDrives,    $CrashReport,          $lbl_CrashReport,
+    $form_CrashReport,     $DefragNeeded,         $lbl_DefragNeeded,
+    $form_DefragNeeded
 );
 
 # Prepare logging system
@@ -237,7 +238,7 @@ sub LogWarn {
             EventType => 2,
         }
     );
-    Win32::GUI::MessageBox(0,"$msg","ldms_client_core",64);
+    Win32::GUI::MessageBox( 0, "$msg", "ldms_client_core", 64 );
     return 0;
 }
 
@@ -251,7 +252,7 @@ sub LogDie {
             EventType => 1,
         }
     );
-    Win32::GUI::MessageBox(0,"$msg","ldms_client_core",48);
+    Win32::GUI::MessageBox( 0, "$msg", "ldms_client_core", 48 );
     exit 1;
 }
 
@@ -334,21 +335,14 @@ sub FindConfigFile {
 "Can't find HKEY_LOCAL_MACHINE/Software/LANDesk/ManagementSuite/Setup"
         );
         my $msg = "Can't find HKEY_LOCAL_MACHINE/Software/LANDesk/"
-            . "ManagementSuite/Setup. Are you sure this is the core?";
-        Win32::GUI::MessageBox(
-            0,
-            $msg,
-            "ldms_client_core",
-            48
-        );
+          . "ManagementSuite/Setup. Are you sure this is the core?";
+        Win32::GUI::MessageBox( 0, $msg, "ldms_client_core", 48 );
         croak($msg);
     }
     if ( !-e $ldlogon ) {
         &Log("Can't find $ldlogon");
         my $msg = "Can't find $ldlogon. Are you sure this is the core?";
-        Win32::GUI::MessageBox( 0,
-            $msg,
-            "ldms_client_core", 48 );
+        Win32::GUI::MessageBox( 0, $msg, "ldms_client_core", 48 );
         croak($msg);
     }
     my $output = $ldlogon . "\\ldms_client.ini";
@@ -495,7 +489,7 @@ sub Show_MainWindow {
     );
 
     # BEGIN USERS TAB #######
-    $nexthoriz    = 35;
+    $nexthoriz = 35;
 
     # Begin FindPST row
     $form_FindPST = $Main->AddCheckbox(
@@ -564,14 +558,21 @@ sub Show_MainWindow {
     );
     $form_AggroMailSearch->SetRange( 1, 3 );
     $form_AggroMailSearch->SetPos($AggroMailSearch);
-    $form_AggroMailSearch->SetBuddy( 0,
-        $Main->AddLabel( 
+    $form_AggroMailSearch->SetBuddy(
+        0,
+        $Main->AddLabel(
             -name => "lbl_aggromailsearch_left",
-            -text => "Accuracy" ) );
-    $form_AggroMailSearch->SetBuddy( 1,
-        $Main->AddLabel( 
+            -text => "Accuracy"
+        )
+    );
+    $form_AggroMailSearch->SetBuddy(
+        1,
+        $Main->AddLabel(
             -name => "lbl_aggromailsearch_right",
-            -text => "Performance" ) );
+            -text => "Performance"
+        )
+    );
+
     # End AggroMailSearch row
 
     # Begin RegistryReader row
@@ -634,7 +635,7 @@ sub Show_MainWindow {
     # End Profile Size row
 
     # BEGIN SYSTEM TAB #######
-    $nexthoriz    = 35;
+    $nexthoriz = 35;
 
     # Begin PolicyList row
     $form_PolicyList = $Main->AddCheckbox(
@@ -650,6 +651,7 @@ sub Show_MainWindow {
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
         -size => [ 300, 20 ],
     );
+
     # End PolicyList row
 
     # Begin LANDeskInfo row
@@ -754,7 +756,7 @@ sub Show_MainWindow {
     # End SID row
 
     # BEGIN HARDWARE TAB #######
-    $nexthoriz    = 35;
+    $nexthoriz = 35;
 
     # Begin Battery row
     $form_Battery = $Main->AddCheckbox(
@@ -770,6 +772,7 @@ sub Show_MainWindow {
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
         -size => [ 300, 20 ]
     );
+
     # End Battery row
 
     # Begin NICDuplex row
@@ -786,6 +789,7 @@ sub Show_MainWindow {
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
         -size => [ 300, 20 ],
     );
+
     # End NICDuplex row
 
     # Begin Netstat row
@@ -802,6 +806,7 @@ sub Show_MainWindow {
         -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
         -size => [ 300, 20 ],
     );
+
     # End Netstat row
 
     # Begin CrashReport row
@@ -864,7 +869,7 @@ sub Show_MainWindow {
     # End Defrag Needed row
 
     # BEGIN GENERAL TAB #######
-    $nexthoriz    = 35;
+    $nexthoriz = 35;
 
     # Begin Macintosh row
     $form_Macintosh = $Main->AddCheckbox(
@@ -913,9 +918,9 @@ sub Show_MainWindow {
         -name    => 'Default',
         -text    => 'Ok',
         -tabstop => 1,
-        -default => 1,           # Give button darker border
-        -ok      => 1,           # press 'Return' to click this button
-        -pos => [ 50, 275 ],
+        -default => 1,                 # Give button darker border
+        -ok      => 1,                 # press 'Return' to click this button
+        -pos     => [ 50, 275 ],
         -size    => [ 60, 20 ],
         -onClick => \&Default_Click,
     );
@@ -924,7 +929,7 @@ sub Show_MainWindow {
         -name    => 'Cancel',
         -text    => 'Cancel',
         -tabstop => 1,
-        -cancel  => 1,                     # press 'Esc' to click this button
+        -cancel  => 1,                 # press 'Esc' to click this button
         -pos     => [ 150, 275 ],
         -size    => [ 60, 20 ],
         -onClick => \&Cancel_Click,
@@ -939,7 +944,6 @@ sub Show_MainWindow {
         -onClick => \&Schema_Click,
     );
 
-
     $btn_help = $Main->AddButton(
         -name    => 'Help',
         -text    => 'Help',
@@ -948,6 +952,7 @@ sub Show_MainWindow {
         -size    => [ 60, 20 ],
         -onClick => \&Help_Click,
     );
+
     # End button row
 
     $sb = $Main->AddStatusBar();
@@ -1060,6 +1065,7 @@ sub MainTab_Users {
     $lbl_FindNSF->Show();
     $lbl_AggroMailSearch->Show();
     $form_AggroMailSearch->Show();
+
    # Some of the visible items on the window are automagically created and don't
    # have associated objects... so they have to be called directly via name
     Win32::GUI::Show( $Main->lbl_aggromailsearch_left()->{-handle} );
@@ -1091,6 +1097,7 @@ sub MainTab_System {
     $form_Produkey->Show();
     $lbl_Produkey->Show();
     $form_ProdukeyBinary->Show();
+
    # Some of the visible items on the window are automagically created and don't
    # have associated objects... so they have to be called directly via name
     Win32::GUI::Show( $Main->produkeybinary_field_Prompt()->{-handle} );
@@ -1115,6 +1122,7 @@ sub MainTab_Hardware {
     $form_DCCUWol->Show();
     $lbl_DCCUWol->Show();
     $form_DCCUWolBinary->Show();
+
    # Some of the visible items on the window are automagically created and don't
    # have associated objects... so they have to be called directly via name
     Win32::GUI::Show( $Main->dccuwolbinary_field_Prompt()->{-handle} );
@@ -1141,6 +1149,7 @@ sub MainTab_General {
 sub Main_Hide {
 
     if ($DEBUG) { Log("DEBUG: Main_Hide"); }
+
     # Users Tab
     $form_FindPST->Hide();
     $lbl_FindPST->Hide();
@@ -1150,6 +1159,7 @@ sub Main_Hide {
     $lbl_FindNSF->Hide();
     $lbl_AggroMailSearch->Hide();
     $form_AggroMailSearch->Hide();
+
    # Some of the visible items on the window are automagically created and don't
    # have associated objects... so they have to be called directly via name
     Win32::GUI::Hide( $Main->lbl_aggromailsearch_left()->{-handle} );
@@ -1175,6 +1185,7 @@ sub Main_Hide {
     $form_Produkey->Hide();
     $lbl_Produkey->Hide();
     $form_ProdukeyBinary->Hide();
+
    # Some of the visible items on the window are automagically created and don't
    # have associated objects... so they have to be called directly via name
     Win32::GUI::Hide( $Main->produkeybinary_field_Prompt()->{-handle} );
@@ -1193,6 +1204,7 @@ sub Main_Hide {
     $form_DCCUWol->Hide();
     $lbl_DCCUWol->Hide();
     $form_DCCUWolBinary->Hide();
+
    # Some of the visible items on the window are automagically created and don't
    # have associated objects... so they have to be called directly via name
     Win32::GUI::Hide( $Main->dccuwolbinary_field_Prompt()->{-handle} );
@@ -1913,24 +1925,74 @@ sub macdefault_Click {
 ### Commit database schema changes ##########################################
 sub Schema_Click {
 
-    if ($DEBUG) { &Log("DEBUG: Schema update initiated"); }
+    # Warn them about the dragon, offer an exit
+    my $message =
+        "In order to improve performance, you may select to use "
+      . "modeled data instead of unmodeled data. If you click Yes, you will "
+      . "have to discard any data that ldms_client has already gathered and "
+      . "reboot your core.";
+    my $answer = Win32::GUI::MessageBox( 0, $message, "ldms_client_core", 4 );
+    if ( $answer == 7 ) {
+        if ($DEBUG) { &Log("DEBUG: Schema update cancelled"); }
+        return 0;
+    }
+    open_browser( 'http://community.landesk.com/support/docs/DOC-2538' );
+    &LogWarn("Please review LANDesk Community DOC-2538");
+
+    # locate dbrepair.exe
+    my $dbrepair = Win32::GetShortPathName($ldmain) . "dbrepair.exe";
+    if ( !-e $dbrepair ) {
+        open_browser( 'http://community.landesk.com/support/docs/DOC-2297' );
+        &LogWarn( "$dbrepair not found; cannot continue with schema update. "
+              . "Please download from LANDesk Community DOC-2297." );
+        return 1;
+    }
+
+    # Launch dbrepair
+    $message =
+        "Stop Inventory Service and launch dbrepair now?";
+    $answer = Win32::GUI::MessageBox( 0, $message, "ldms_client_core", 4 );
+    if ( $answer == 7 ) {
+        if ($DEBUG) { &Log("DEBUG: Schema update cancelled"); }
+        return 0;
+    }
+    Win32::Service::StopService( '', "LANDesk Inventory Server" )
+      or &LogDie("Could not stop Inventory Service.");
+    system($dbrepair);
 
     # locate coredbutil.exe
-    my $coredbutil = Win32::GetShortPathName($ldmain) . "/coredbutil.exe";
-    if (! -e $coredbutil) {
+    my $coredbutil = Win32::GetShortPathName($ldmain) . "coredbutil.exe";
+    if ( !-e $coredbutil ) {
         &LogWarn("$coredbutil not found; cannot continue with schema update.");
         return 1;
     }
+
     # locate ldms_client.xml
-    my $ldms_client_xml = "ldms_client.xml";
-    if (! -e $ldms_client_xml) {
-        &LogWarn("$ldms_client_xml not found; cannot continue with schema update.");
+    my $ldms_client_xml = Win32::GetShortPathName($ldmain) . "ldms_client.xml";
+    if ( !-e $ldms_client_xml ) {
+        &LogWarn(
+            "$ldms_client_xml not found; cannot continue with schema update.");
         return 1;
     }
+
+    # Last chance to bail out
+    $message = "Do you have a current and complete database backup?";
+    $answer = Win32::GUI::MessageBox( 0, $message, "ldms_client_core", 4 );
+    if ( $answer == 7 ) {
+        if ($DEBUG) { &Log("DEBUG: Schema update cancelled"); }
+        return 0;
+    }
+
     # set hourglass
     $oldCursor = &Win32::GUI::SetCursor($waitCursor);
+
     # commit action
-    system("$coredbutil /xml=$ldms_client_xml");
+
+    system("$coredbutil /buildcomponents /xml=$ldms_client_xml");
+
+    Win32::Service::StartService( '', "LANDesk Inventory Server" )
+      or &LogDie("Could not start Inventory Service.");
+
     # unset hourglass
     Win32::GUI::SetCursor($oldCursor);
 
