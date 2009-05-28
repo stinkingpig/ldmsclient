@@ -24,7 +24,7 @@ use Win32::GUI();
 use Win32::EventLog::Message;
 use Win32::TieRegistry ( Delimiter => "/", ArrayValues => 1 );
 use Win32::WebBrowser;
-use Carp;
+use Carp ();
 use Config::Tiny;
 use LWP::Simple qw(!head !getprint !getstore !mirror);
 
@@ -49,7 +49,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.8";
+my $VERSION = "2.4.9";
 
 my (
     $ldmain,              $ldlogon,              $updatemessage,
@@ -60,7 +60,7 @@ my (
     $FindNSF,             $FindProfileSize,      $AggroMailSearch,
     $ProdukeyBinary,      $DCCUWol,              $DCCUWolBinary,
     $MacNetstat,          $MacOptical,           $Main,
-    $MainTab, 
+    $MainTab,             $btn_schema, 
     $w,                   $h,                    $ncw,
     $nch,                 $dw,                   $dh,
     $desk,                $wx,                   $wy,
@@ -237,6 +237,7 @@ sub LogWarn {
             EventType => 2,
         }
     );
+    Win32::GUI::MessageBox(0,"$msg","ldms_client_core",64);
     return 0;
 }
 
@@ -250,7 +251,8 @@ sub LogDie {
             EventType => 1,
         }
     );
-    croak($msg);
+    Win32::GUI::MessageBox(0,"$msg","ldms_client_core",48);
+    exit 1;
 }
 
 ### ASCII to Integer subroutine #############################################
@@ -928,15 +930,24 @@ sub Show_MainWindow {
         -onClick => \&Cancel_Click,
     );
 
+    $btn_schema = $Main->AddButton(
+        -name    => 'Commit Schema',
+        -text    => 'Commit Schema',
+        -tabstop => 1,
+        -pos     => [ 250, 275 ],
+        -size    => [ 100, 20 ],
+        -onClick => \&Schema_Click,
+    );
+
+
     $btn_help = $Main->AddButton(
         -name    => 'Help',
         -text    => 'Help',
         -tabstop => 1,
-        -pos     => [ 250, 275 ],
+        -pos     => [ 375, 275 ],
         -size    => [ 60, 20 ],
         -onClick => \&Help_Click,
     );
-
     # End button row
 
     $sb = $Main->AddStatusBar();
@@ -1896,6 +1907,33 @@ sub macdefault_Click {
     $MacOptical = $form_MacOptical->Checked();
 
     $macmain->Hide();
+    return 0;
+}
+
+### Commit database schema changes ##########################################
+sub Schema_Click {
+
+    if ($DEBUG) { &Log("DEBUG: Schema update initiated"); }
+
+    # locate coredbutil.exe
+    my $coredbutil = Win32::GetShortPathName($ldmain) . "/coredbutil.exe";
+    if (! -e $coredbutil) {
+        &LogWarn("$coredbutil not found; cannot continue with schema update.");
+        return 1;
+    }
+    # locate ldms_client.xml
+    my $ldms_client_xml = "ldms_client.xml";
+    if (! -e $ldms_client_xml) {
+        &LogWarn("$ldms_client_xml not found; cannot continue with schema update.");
+        return 1;
+    }
+    # set hourglass
+    $oldCursor = &Win32::GUI::SetCursor($waitCursor);
+    # commit action
+    system("$coredbutil /xml=$ldms_client_xml");
+    # unset hourglass
+    Win32::GUI::SetCursor($oldCursor);
+
     return 0;
 }
 
