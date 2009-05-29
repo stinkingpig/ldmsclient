@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <schema version="1.0" type="tables">
 
-<table name="NetstatTCP" desc="" metaAdd="Yes" equiJoin="No" displayName="TCP" parentRelation="Computer.Netstat.Port" parent="Computer" tableType="1" image="Network.bmp" rollupIdentity="Yes">
+<table name="NetstatTCP" desc="" metaAdd="Yes" equiJoin="No" displayName="TCP" parentRelation="Computer.Netstat" parent="Computer" tableType="1" image="Network.bmp" rollupIdentity="Yes">
                 <column name="Computer_Idn" type="Int" null="No" />
                 <column name="NetstatTCP_Idn" type="Int" identity="Yes" null="No" />
                 <column name="PortNum" type="Int" null="No" displayName="Port" PK="Yes" />
@@ -14,7 +14,7 @@
                                 <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
                 </foreignKey>
 </table>
-<table name="NetstatUDP" desc="" metaAdd="Yes" equiJoin="No" displayName="UDP" parentRelation="Computer.Netstat.Port" parent="Computer" tableType="1" image="Network.bmp" rollupIdentity="Yes">
+<table name="NetstatUDP" desc="" metaAdd="Yes" equiJoin="No" displayName="UDP" parentRelation="Computer.Netstat" parent="Computer" tableType="1" image="Network.bmp" rollupIdentity="Yes">
                 <column name="Computer_Idn" type="Int" null="No" />
                 <column name="NetstatUDP_Idn" type="Int" identity="Yes" null="No" />
                 <column name="PortNum" type="Int" null="No" displayName="Port" PK="Yes" />

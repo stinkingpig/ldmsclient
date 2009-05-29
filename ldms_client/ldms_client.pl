@@ -612,13 +612,13 @@ sub CallNetstat {
         if ( $line[0] =~ /TCP/ && $line[3] =~ /LISTENING/i ) {
             @port = split( ':', $line[1] );
             &ReportToCore(
-                "Netstat - Port - $line[0] - $port[1] = Open"
+                "Netstat - $line[0] - (Port:$port[1]) - Status = Open"
             );
         }
         if ( $line[0] =~ /UDP/i ) {
             @port = split( ':', $line[1] );
             &ReportToCore(
-                "Netstat - Port - $line[0] - $port[1] = Open"
+                "Netstat - $line[0] - (Port:$port[1]) - Status = Open"
             );
         }
     }
@@ -1826,9 +1826,9 @@ sub CallNeedsDefrag {
 
     # Remove the colon from the drive letter
     chop($drive);
-    &ReportToCore( "Mass Storage - Logical Drive - $drive - Fragmentation"
+    &ReportToCore( "Mass Storage - Logical Drive - (Drive Letter:$drive) - Fragmentation"
           . " = $fragged" );
-    &ReportToCore( "Mass Storage - Logical Drive - $drive - Recommendation"
+    &ReportToCore( "Mass Storage - Logical Drive - (Drive Letter:$drive) - Recommendation"
           . " = $fragreco" );
     return 0;
 
