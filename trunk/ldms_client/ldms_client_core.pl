@@ -25,6 +25,7 @@ use Win32::EventLog::Message;
 use Win32::TieRegistry ( Delimiter => "/", ArrayValues => 1 );
 use Win32::WebBrowser;
 use Win32::Service;
+use Cwd;
 use Carp ();
 use Config::Tiny;
 use LWP::Simple qw(!head !getprint !getstore !mirror);
@@ -1937,6 +1938,7 @@ sub Schema_Click {
         return 0;
     }
     open_browser( 'http://community.landesk.com/support/docs/DOC-2538' );
+    sleep 3;
     &LogWarn("Please review LANDesk Community DOC-2538");
 
     # locate dbrepair.exe
@@ -1957,7 +1959,7 @@ sub Schema_Click {
         return 0;
     }
     Win32::Service::StopService( '', "LANDesk Inventory Server" )
-      or &LogDie("Could not stop Inventory Service.");
+      or &LogWarn("Could not stop Inventory Service.");
     system($dbrepair);
 
     # locate coredbutil.exe
@@ -1968,7 +1970,7 @@ sub Schema_Click {
     }
 
     # locate ldms_client.xml
-    my $ldms_client_xml = Win32::GetShortPathName($ldmain) . "ldms_client.xml";
+    my $ldms_client_xml = Win32::GetShortPathName(Cwd::getcwd) . "/ldms_client.xml";
     if ( !-e $ldms_client_xml ) {
         &LogWarn(
             "$ldms_client_xml not found; cannot continue with schema update.");
@@ -1987,14 +1989,22 @@ sub Schema_Click {
     $oldCursor = &Win32::GUI::SetCursor($waitCursor);
 
     # commit action
-
-    system("$coredbutil /buildcomponents /xml=$ldms_client_xml");
+    Win32::CopyFile(
+        $ldms_client_xml, 
+        Win32::GetShortPathName($ldmain) . "ldms_client.xml", 
+        1
+    ) 
+        or &LogDie("Cannot copy ldms_client.xml to $ldmain");
+    system("$coredbutil /buildcomponents /xml=ldms_client.xml");
 
     Win32::Service::StartService( '', "LANDesk Inventory Server" )
       or &LogDie("Could not start Inventory Service.");
 
     # unset hourglass
     Win32::GUI::SetCursor($oldCursor);
+    &LogWarn(
+        "Schema update finished, you should reboot your core to clear cache."
+    );
 
     return 0;
 }
