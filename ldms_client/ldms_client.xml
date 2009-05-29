@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<schema version="1.0" type="tables">
+
+<table name="NetstatTCP" desc="" metaAdd="Yes" equiJoin="No" displayName="TCP" parentRelation="Computer.Netstat.Port" parent="Computer" tableType="1" image="Network.bmp" rollupIdentity="Yes">
+                <column name="Computer_Idn" type="Int" null="No" />
+                <column name="NetstatTCP_Idn" type="Int" identity="Yes" null="No" />
+                <column name="PortNum" type="Int" null="No" displayName="Port" PK="Yes" />
+                <column name="Status" type="Varchar(16)" displayName="Status" />
+                <primaryKey name="XPK_NetstatTCP">
+                                <primaryKeyColumn column="Computer_Idn" />
+                                <primaryKeyColumn column="NetstatTCP_Idn" />
+                </primaryKey>
+                <foreignKey name="R_NetstatTCP" foreignTable="Computer">
+                                <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
+                </foreignKey>
+</table>
+<table name="NetstatUDP" desc="" metaAdd="Yes" equiJoin="No" displayName="UDP" parentRelation="Computer.Netstat.Port" parent="Computer" tableType="1" image="Network.bmp" rollupIdentity="Yes">
+                <column name="Computer_Idn" type="Int" null="No" />
+                <column name="NetstatUDP_Idn" type="Int" identity="Yes" null="No" />
+                <column name="PortNum" type="Int" null="No" displayName="Port" PK="Yes" />
+                <column name="Status" type="Varchar(16)" displayName="Status" />
+                <primaryKey name="XPK_NetstatUDP">
+                                <primaryKeyColumn column="Computer_Idn" />
+                                <primaryKeyColumn column="NetstatUDP_Idn" />
+                </primaryKey>
+                <foreignKey name="R_NetstatUDP" foreignTable="Computer">
+                                <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
+                </foreignKey>
+</table>
+</schema>

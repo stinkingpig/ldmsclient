@@ -612,13 +612,13 @@ sub CallNetstat {
         if ( $line[0] =~ /TCP/ && $line[3] =~ /LISTENING/i ) {
             @port = split( ':', $line[1] );
             &ReportToCore(
-                "Netstat - Open Port - $line[0] - $port[1] = $line[0]/$port[1]"
+                "Netstat - Port - $line[0] - $port[1] = Open"
             );
         }
         if ( $line[0] =~ /UDP/i ) {
             @port = split( ':', $line[1] );
             &ReportToCore(
-                "Netstat - Open Port - $line[0] - $port[1] = $line[0]/$port[1]"
+                "Netstat - Port - $line[0] - $port[1] = Open"
             );
         }
     }
