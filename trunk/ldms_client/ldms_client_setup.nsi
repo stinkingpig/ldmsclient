@@ -30,6 +30,7 @@ Section "Program Files"
   File "ldms_client_regreader.exe"
   File "ldms_client_core.exe"
   File "ldms_client.pl"
+  File "ldms_client.xml"
   File "ldms_client_core.pl"
   File "ldms_client_regreader.pl"
   File "ldms_client.perlapp"
@@ -66,6 +67,7 @@ Section "Uninstall"
   Delete $INSTDIR\ldms_client_regreader.exe
   Delete $INSTDIR\ldms_client_core.exe
   Delete $INSTDIR\ldms_client.bat
+  Delete $INSTDIR\ldms_client.xml
   Delete $INSTDIR\defrag.bat
   Delete $INSTDIR\LDSCNHLP.INI
   Delete $INSTDIR\ldms_client.pl
