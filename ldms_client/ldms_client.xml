@@ -27,4 +27,17 @@
                                 <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
                 </foreignKey>
 </table>
+<table name="ProfileSize" desc="" metaAdd="Yes" equiJoin="No" displayName="Profile Size" parentRelation="Computer" parent="Computer" tableType="1" image="ManageGroups.bmp" rollupIdentity="Yes">
+                <column name="Computer_Idn" type="Int" null="No" />
+                <column name="ProfileSize_Idn" type="Int" identity="Yes" null="No" />
+                <column name="User" type="Varchar(255)" null="No" displayName="User Name" PK="Yes" />
+                <column name="Size" type="Varchar(16)" displayName="Size" />
+                <primaryKey name="XPK_ProfileSize">
+                                <primaryKeyColumn column="Computer_Idn" />
+                                <primaryKeyColumn column="ProfileSize_Idn" />
+                </primaryKey>
+                <foreignKey name="R_ProfileSize" foreignTable="Computer">
+                                <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
+                </foreignKey>
+</table>
 </schema>

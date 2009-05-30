@@ -1163,7 +1163,7 @@ sub CallEnumerateGroups {
             # Chop off that last comma and space
             $GroupMembers = substr( $GroupMembers, 0, -2 );
             &ReportToCore(
-"Local Users and Groups - Local Groups - $GroupName - Members = $GroupMembers"
+"Local Users and Groups - Local Groups - (Name:$GroupName) - Members = $GroupMembers"
             );
         }
     }
@@ -1314,7 +1314,7 @@ sub CallFindProfileSize {
             # Search that path recursively for its size
             my $size = 0;
             find( sub { $size += -s if -f $_ }, "$user" );
-            &ReportToCore( "Profile Size - $user = " . format_bytes($size) );
+            &ReportToCore( "Profile Size - (User Name:$user) - Size = " . format_bytes($size) );
         }
     }
     return 0;
