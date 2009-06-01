@@ -25,6 +25,7 @@ use Win32::EventLog::Message;
 use Win32::TieRegistry ( Delimiter => "/", ArrayValues => 1 );
 use Win32::WebBrowser;
 use Win32::Service;
+use Win32::OLE qw(in);
 use Cwd;
 use Carp ();
 use Config::Tiny;
@@ -105,7 +106,7 @@ my (
     $form_FindOST,         $MappedDrives,         $lbl_MappedDrives,
     $form_MappedDrives,    $CrashReport,          $lbl_CrashReport,
     $form_CrashReport,     $DefragNeeded,         $lbl_DefragNeeded,
-    $form_DefragNeeded
+    $form_DefragNeeded,    $SchemaUpdated
 );
 
 # Prepare logging system
@@ -266,6 +267,24 @@ sub atoi {
     return $t;
 }
 
+### IsProcessRunning subroutine #############################################
+sub IsProcessRunning {
+    my $target = shift;
+    if (! defined($target)) {
+        &LogDie("IsProcessRunning called without a target");
+    }
+    my $strComputer = '.';
+    my $objWMI = Win32::OLE->GetObject('winmgmts:\\\\' . $strComputer . '\\root\\cimv2');
+    my $colProcesses = $objWMI->InstancesOf('Win32_Process');
+    foreach my $objProcess (in $colProcesses) {
+        if ($objProcess->Name =~ $target) {
+            return 1;
+        }
+    }
+    # fall through to return zero if we didn't see the target
+    return 0;
+}
+
 ### IsUpdate subroutine #####################################################
 sub IsUpdate {
 
@@ -382,6 +401,7 @@ sub ReadConfigFile {
     $MappedDrives    = $Config->{_}->{MappedDrives};
     $CrashReport     = $Config->{_}->{CrashReport};
     $DefragNeeded    = $Config->{_}->{DefragNeeded};
+    $SchemaUpdated   = $Config->{_}->{SchemaUpdated};
     if ($RegistryReader) {
 
         foreach my $index ( 1 .. 10 ) {
@@ -445,6 +465,7 @@ sub WriteConfigFile {
     $Config->{_}->{MappedDrives}    = $MappedDrives;
     $Config->{_}->{CrashReport}     = $CrashReport;
     $Config->{_}->{DefragNeeded}    = $DefragNeeded;
+    $Config->{_}->{SchemaUpdated}   = $SchemaUpdated;
     foreach my $index ( 1 .. 10 ) {
         $Config->{RegistryReader}->{$index} = $rr[$index];
     }
@@ -1931,36 +1952,48 @@ sub Schema_Click {
         "In order to improve performance, you may select to use "
       . "modeled data instead of unmodeled data. If you click Yes, you will "
       . "have to discard any data that ldms_client has already gathered and "
-      . "reboot your core.";
+      . "should reboot your core.";
     my $answer = Win32::GUI::MessageBox( 0, $message, "ldms_client_core", 4 );
     if ( $answer == 7 ) {
         if ($DEBUG) { &Log("DEBUG: Schema update cancelled"); }
         return 0;
     }
-    open_browser( 'http://community.landesk.com/support/docs/DOC-2538' );
-    sleep 3;
-    &LogWarn("Please review LANDesk Community DOC-2538");
+
+    # If they haven't read it before, they should read this now
+    if ( !defined($SchemaUpdated) ) {
+        open_browser('http://community.landesk.com/support/docs/DOC-2538');
+        sleep 3;
+        &LogWarn("Please review LANDesk Community DOC-2538");
+    }
 
     # locate dbrepair.exe
     my $dbrepair = Win32::GetShortPathName($ldmain) . "dbrepair.exe";
     if ( !-e $dbrepair ) {
-        open_browser( 'http://community.landesk.com/support/docs/DOC-2297' );
+        open_browser('http://community.landesk.com/support/docs/DOC-2297');
         &LogWarn( "$dbrepair not found; cannot continue with schema update. "
               . "Please download from LANDesk Community DOC-2297." );
         return 1;
     }
 
     # Launch dbrepair
-    $message =
-        "Stop Inventory Service and launch dbrepair now?";
+    if (&IsProcessRunning("dbrepair")) {
+        &LogWarn("DBRepair seems to be running already, please close it.")
+    }
+    $message = "Stop Inventory Service and launch dbrepair now?";
     $answer = Win32::GUI::MessageBox( 0, $message, "ldms_client_core", 4 );
     if ( $answer == 7 ) {
         if ($DEBUG) { &Log("DEBUG: Schema update cancelled"); }
         return 0;
     }
+    # set hourglass
+    $oldCursor = &Win32::GUI::SetCursor($waitCursor);
+
     Win32::Service::StopService( '', "LANDesk Inventory Server" )
       or &LogWarn("Could not stop Inventory Service.");
     system($dbrepair);
+
+    # unset hourglass
+    Win32::GUI::SetCursor($oldCursor);
 
     # locate coredbutil.exe
     my $coredbutil = Win32::GetShortPathName($ldmain) . "coredbutil.exe";
@@ -1970,7 +2003,8 @@ sub Schema_Click {
     }
 
     # locate ldms_client.xml
-    my $ldms_client_xml = Win32::GetShortPathName(Cwd::getcwd) . "/ldms_client.xml";
+    my $ldms_client_xml =
+      Win32::GetShortPathName(Cwd::getcwd) . "/ldms_client.xml";
     if ( !-e $ldms_client_xml ) {
         &LogWarn(
             "$ldms_client_xml not found; cannot continue with schema update.");
@@ -1989,12 +2023,9 @@ sub Schema_Click {
     $oldCursor = &Win32::GUI::SetCursor($waitCursor);
 
     # commit action
-    Win32::CopyFile(
-        $ldms_client_xml, 
-        Win32::GetShortPathName($ldmain) . "ldms_client.xml", 
-        1
-    ) 
-        or &LogDie("Cannot copy ldms_client.xml to $ldmain");
+    Win32::CopyFile( $ldms_client_xml,
+        Win32::GetShortPathName($ldmain) . "ldms_client.xml", 1 )
+      or &LogDie("Cannot copy ldms_client.xml to $ldmain");
     system("$coredbutil /buildcomponents /xml=ldms_client.xml");
 
     Win32::Service::StartService( '', "LANDesk Inventory Server" )
@@ -2003,9 +2034,8 @@ sub Schema_Click {
     # unset hourglass
     Win32::GUI::SetCursor($oldCursor);
     &LogWarn(
-        "Schema update finished, you should reboot your core to clear cache."
-    );
-
+        "Schema update finished, you should reboot your core to clear cache." );
+    $SchemaUpdated = 1;
     return 0;
 }
 

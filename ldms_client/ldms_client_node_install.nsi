@@ -3,7 +3,8 @@
 !include "MUI.nsh"
 SetCompressor /SOLID lzma
 SetCompress force
-Name "ldms_client version 2.4.8"
+!define VERSION "2.4.9" 
+Name "ldms_client version ${VERSION}"
 OutFile "ldms_client_node_install.exe"
 InstallDir "$PROGRAMFILES\LANDesk\ldclient"
 SilentInstall "silent"
