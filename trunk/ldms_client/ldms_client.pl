@@ -201,6 +201,7 @@ my $SID             = $Config->{_}->{SID};
 my $MappedDrives    = $Config->{_}->{MappedDrives};
 my $CrashReport     = $Config->{_}->{CrashReport};
 my $DefragNeeded    = $Config->{_}->{DefragNeeded};
+my $SchemaUpdated   = $Config->{_}->{SchemaUpdated};
 
 # What HKCU keys will we look for?
 my @rr;
@@ -612,12 +613,12 @@ sub CallNetstat {
         if ( $line[0] =~ /TCP/ && $line[3] =~ /LISTENING/i ) {
             @port = split( ':', $line[1] );
             &ReportToCore(
-                "Netstat - $line[0] - (Port:$port[1]) - Status = Open" );
+                "Netstat - $line[0] - (Port:$port[1]) - Status = Open");
         }
         if ( $line[0] =~ /UDP/i ) {
             @port = split( ':', $line[1] );
             &ReportToCore(
-                "Netstat - $line[0] - (Port:$port[1]) - Status = Open" );
+                "Netstat - $line[0] - (Port:$port[1]) - Status = Open");
         }
     }
     if ($DEBUG) { &Log("CallNetstat: Finished"); }
@@ -1312,7 +1313,8 @@ sub CallFindProfileSize {
         close($SEMAPHORE);
         chomp($last_ups);
 
-    } else {
+    }
+    else {
         $last_ups = eval { time() - 96400 };
     }
     my $dayago = eval { time() - 86400 };
@@ -1327,7 +1329,7 @@ sub CallFindProfileSize {
                 # Search that path recursively for its size
                 my $size = 0;
                 find( sub { $size += -s if -f $_ }, "$user" );
-                my ($path,$username) = split(/\//,$user);
+                my ( $path, $username ) = split( /\//, $user );
                 &ReportToCore( "Profile Size - (User Name:$username) - Size = "
                       . format_bytes($size) );
             }
@@ -1481,14 +1483,19 @@ sub CallMappedDrives {
                           . "subkey is $subkey, "
                           . "value is $value" );
                 }
-                my $driveletter = substr($hkcukey,  -1,  1);
+                my $driveletter = substr( $hkcukey, -1, 1 );
                 chomp($subkey);
                 chomp($value);
-                &ReportToCore( "Mass Storage - Logical Drive - "
-                      . "$driveletter - $subkey = $value" );
-                # One-to-many style -- waiting on enforced data modelling
-                #&ReportToCore( "Mass Storage - Logical Drive - "
-                #    . "(Drive Letter:$driveletter) - $subkey = $value" );
+                if ($SchemaUpdated) {
+
+                    # One-to-many style -- Requires data modelling at core
+                    &ReportToCore( "Mass Storage - Logical Drive - "
+                          . "(Drive Letter:$driveletter) - $subkey = $value" );
+                }
+                else {
+                    &ReportToCore( "Mass Storage - Logical Drive - "
+                          . "$driveletter - $subkey = $value" );
+                }
             }
             close($MDTEMP);
             if ($DEBUG) {
@@ -1749,13 +1756,14 @@ sub CallProdukey {
             open( $PKDFILE, '<', "$produkeydat" )
               or &LogWarn("Can't open $produkeydat - $!");
             foreach my $entry (<$PKDFILE>) {
+
                 # Correct the comma separation problem caused by
                 # Windows Server 2003, Standard Edition
                 $entry =~ s/,\s/ /gx;
                 my (
                     $pk_name,    $pk_id, $pk_key,
                     $pk_install, $pk_sp, $pk_machine
-                ) = split(/,/, $entry);
+                ) = split( /,/, $entry );
                 if ($pk_sp) {
                     $pk_name = $pk_name . " " . $pk_sp;
                 }
@@ -1866,19 +1874,22 @@ sub CallNeedsDefrag {
 
     # Remove the colon from the drive letter
     chop($drive);
-    &ReportToCore(
-        "Mass Storage - Logical Drive - $drive - Fragmentation"
-          . " = $fragged" );
-    &ReportToCore(
-        "Mass Storage - Logical Drive - $drive - Recommendation"
-          . " = $fragreco" );
-    # One-to-many style -- waiting on enforced data modelling
-    #&ReportToCore(
-    #    "Mass Storage - Logical Drive - (Drive Letter:$drive) - Fragmentation"
-    #      . " = $fragged" );
-    #&ReportToCore(
-    #    "Mass Storage - Logical Drive - (Drive Letter:$drive) - Recommendation"
-    #      . " = $fragreco" );
+    if ($SchemaUpdated) {
+
+        # One-to-many style -- Requires data modelling at the core
+        &ReportToCore(
+"Mass Storage - Logical Drive - (Drive Letter:$drive) - Fragmentation"
+              . " = $fragged" );
+        &ReportToCore(
+"Mass Storage - Logical Drive - (Drive Letter:$drive) - Recommendation"
+              . " = $fragreco" );
+    }
+    else {
+        &ReportToCore( "Mass Storage - Logical Drive - $drive - Fragmentation"
+              . " = $fragged" );
+        &ReportToCore( "Mass Storage - Logical Drive - $drive - Recommendation"
+              . " = $fragreco" );
+    }
     return 0;
 
 }
