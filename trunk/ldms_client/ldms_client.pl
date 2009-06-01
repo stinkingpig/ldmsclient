@@ -115,7 +115,7 @@ my ( $totalpstsize,  $totalostsize,  $totalnsfsize )  = 0;
 my ( $totalpstcount, $totalostcount, $totalnsfcount ) = 0;
 
 # File handles I'll need
-my ( $FILE, $PSFILE, $PKDFILE, $RRTEMP, $RRLOG, $MDTEMP, $MDLOG );
+my ( $FILE, $PSFILE, $PKDFILE, $RRTEMP, $RRLOG, $MDTEMP, $MDLOG, $SEMAPHORE );
 
 # Global variables
 my ($RegKey);
@@ -451,7 +451,7 @@ sub CallCrashReport {
 
     # Log what happened
     if ( $BSODcount > 0 ) {
-        &ReportToCore( "System - Crashes in last seven days = $BSODcount" );
+        &ReportToCore("System - Crashes in last seven days = $BSODcount");
     }
     return 0;
 }
@@ -612,14 +612,12 @@ sub CallNetstat {
         if ( $line[0] =~ /TCP/ && $line[3] =~ /LISTENING/i ) {
             @port = split( ':', $line[1] );
             &ReportToCore(
-                "Netstat - $line[0] - (Port:$port[1]) - Status = Open"
-            );
+                "Netstat - $line[0] - (Port:$port[1]) - Status = Open" );
         }
         if ( $line[0] =~ /UDP/i ) {
             @port = split( ':', $line[1] );
             &ReportToCore(
-                "Netstat - $line[0] - (Port:$port[1]) - Status = Open"
-            );
+                "Netstat - $line[0] - (Port:$port[1]) - Status = Open" );
         }
     }
     if ($DEBUG) { &Log("CallNetstat: Finished"); }
@@ -1009,9 +1007,7 @@ sub ReadBrokerSettings {
 
     # What mode is brokerconfig in?
     my $pfdir = Win32::GetShortPathName(
-        $PROGRAMFILES . 
-        "\\LANDesk\\Shared Files\\cbaroot\\broker" 
-    );
+        $PROGRAMFILES . "\\LANDesk\\Shared Files\\cbaroot\\broker" );
     my $brokercrt = $pfdir . "\\broker.crt";
     if ( !-e $brokercrt ) {
 
@@ -1305,19 +1301,52 @@ sub CallFindProfileSize {
 
     if ($DEBUG) { &Log("CallFindProfileSize: Looking for user profile sizes"); }
 
-    # Find where user profiles are stored
-    my $userdir = Win32::GetShortPathName($USERPROFILE);
-    $userdir =~ s|\\[^\\]*$||x;
-    for my $user ( glob( $userdir . '/*' ) ) {
-        if ( -d $user ) {
+    # Check a semaphore -- this is an intensive process and shouldn't run
+    # too often.
+    my $ups_semaphore = $tempdir . "\\ldms_client_ups_semaphore.dat";
+    my $last_ups;
+    if ( -e $ups_semaphore ) {
+        open( $SEMAPHORE, '<', "$ups_semaphore" )
+          or &LogWarn("FindProfileSize: Can't read $ups_semaphore : $!");
+        $last_ups = <$SEMAPHORE>;
+        close($SEMAPHORE);
+        chomp($last_ups);
 
-            # Search that path recursively for its size
-            my $size = 0;
-            find( sub { $size += -s if -f $_ }, "$user" );
-            &ReportToCore( "Profile Size - (User Name:$user) - Size = " . format_bytes($size) );
-        }
+    } else {
+        $last_ups = eval { time() - 96400 };
     }
-    return 0;
+    my $dayago = eval { time() - 86400 };
+    if ( $last_ups < $dayago ) {
+
+        # Find where user profiles are stored
+        my $userdir = Win32::GetShortPathName($USERPROFILE);
+        $userdir =~ s|\\[^\\]*$||x;
+        for my $user ( glob( $userdir . '/*' ) ) {
+            if ( -d $user ) {
+
+                # Search that path recursively for its size
+                my $size = 0;
+                find( sub { $size += -s if -f $_ }, "$user" );
+                my ($path,$username) = split(/\//,$user);
+                &ReportToCore( "Profile Size - (User Name:$username) - Size = "
+                      . format_bytes($size) );
+            }
+        }
+
+        # If we scanned, we should write a new semaphore
+        open( $SEMAPHORE, '>', "$ups_semaphore" )
+          or &LogWarn("FindProfileSize: Can't write $ups_semaphore : $!");
+        print $SEMAPHORE time();
+        close($SEMAPHORE);
+
+        return 0;
+    }
+    else {
+        &Log( "FindProfileSize: skipped user profile search, last one occurred"
+              . " at $last_ups and it is now "
+              . time() );
+        return 0;
+    }
 }
 ### End of CallFindProfileSize sub ############################################
 
@@ -1432,6 +1461,7 @@ sub CallMappedDrives {
            #set change access for everyone to $mdtemp file
            # FIXME: Is Everyone called Everyone on non english windows versions?
             system("cacls $mdtemp /E /G Everyone:C");
+
            #set change access for everyone to $mdlog file
            # FIXME: Is Everyone called Everyone on non english windows versions?
             system("cacls $mdlog /E /G Everyone:C");
@@ -1451,10 +1481,14 @@ sub CallMappedDrives {
                           . "subkey is $subkey, "
                           . "value is $value" );
                 }
+                my $driveletter = substr($hkcukey,  -1,  1);
                 chomp($subkey);
                 chomp($value);
-                &ReportToCore(
-                    "Custom Data - HKCU - $hkcukey - $subkey = $value");
+                &ReportToCore( "Mass Storage - Logical Drive - "
+                      . "$driveletter - $subkey = $value" );
+                # One-to-many style -- waiting on enforced data modelling
+                #&ReportToCore( "Mass Storage - Logical Drive - "
+                #    . "(Drive Letter:$driveletter) - $subkey = $value" );
             }
             close($MDTEMP);
             if ($DEBUG) {
@@ -1542,6 +1576,7 @@ sub CallRegistryReader {
            #set change access for everyone to $rrtemp file
            # FIXME: Is Everyone called Everyone on non english windows versions?
             system("cacls $rrtemp /E /G Everyone:C");
+
            #set change access for everyone to $rrlog file
            # FIXME: Is Everyone called Everyone on non english windows versions?
             system("cacls $rrlog /E /G Everyone:C");
@@ -1713,11 +1748,14 @@ sub CallProdukey {
 
             open( $PKDFILE, '<', "$produkeydat" )
               or &LogWarn("Can't open $produkeydat - $!");
-            while (<$PKDFILE>) {
+            foreach my $entry (<$PKDFILE>) {
+                # Correct the comma separation problem caused by
+                # Windows Server 2003, Standard Edition
+                $entry =~ s/,\s/ /gx;
                 my (
                     $pk_name,    $pk_id, $pk_key,
                     $pk_install, $pk_sp, $pk_machine
-                ) = split(/,/x);
+                ) = split(/,/, $entry);
                 if ($pk_sp) {
                     $pk_name = $pk_name . " " . $pk_sp;
                 }
@@ -1792,8 +1830,9 @@ sub CallNeedsDefrag {
  #he fragmentation statistics
  #
  #  You do not need to defragment this volume.
- # 
+ #
         foreach my $line (@defragresult) {
+
             # XP / Server 2003 output
             if ( $line =~ m/(\d+)% Fragmented/ ) {
                 if ($1) {
@@ -1806,6 +1845,7 @@ sub CallNeedsDefrag {
             if ( $line =~ m/^You / ) {
                 $fragreco = &Trim($line);
             }
+
             # Vista output
             if ( $line =~ m/file fragmentation\s+=\s+(\d+)\s+%/ ) {
                 if ($1) {
@@ -1826,10 +1866,19 @@ sub CallNeedsDefrag {
 
     # Remove the colon from the drive letter
     chop($drive);
-    &ReportToCore( "Mass Storage - Logical Drive - (Drive Letter:$drive) - Fragmentation"
+    &ReportToCore(
+        "Mass Storage - Logical Drive - $drive - Fragmentation"
           . " = $fragged" );
-    &ReportToCore( "Mass Storage - Logical Drive - (Drive Letter:$drive) - Recommendation"
+    &ReportToCore(
+        "Mass Storage - Logical Drive - $drive - Recommendation"
           . " = $fragreco" );
+    # One-to-many style -- waiting on enforced data modelling
+    #&ReportToCore(
+    #    "Mass Storage - Logical Drive - (Drive Letter:$drive) - Fragmentation"
+    #      . " = $fragged" );
+    #&ReportToCore(
+    #    "Mass Storage - Logical Drive - (Drive Letter:$drive) - Recommendation"
+    #      . " = $fragreco" );
     return 0;
 
 }
