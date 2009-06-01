@@ -59,7 +59,7 @@
 	<column name="Removable" type="Varchar(60)" displayName="Removable" />
 	<column name="Description" type="Char(60)" displayName="Description" />
     <column name="MediaType" type="Int" displayName="Media Type" />
-  	<column name="RemotePath" type="Varchar(255)" displayName="Remote Path" />
+  	<column name="RemotePath" type="Varchar(255)" displayName="RemotePath" />
   	<column name="Fragmentation" type="Int" displayName="Fragmentation" />
   	<column name="Recommendation" type="Varchar(255)" displayName="Recommendation" />
 	<primaryKey name="XPKLogicalDrives">
