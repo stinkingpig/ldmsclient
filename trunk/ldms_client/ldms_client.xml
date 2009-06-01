@@ -40,4 +40,34 @@
                                 <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
                 </foreignKey>
 </table>
+<table name="LogicalDrives" desc="" metaAdd="Yes" equiJoin="No" displayName="Logical Drive" parentRelation="Computer.Mass Storage" parent="Computer" tableType="1" image="HardDriv.bmp" rollupIdentity="Yes" >
+	<column name="Computer_Idn" type="Int" null="No" />
+	<column name="LogicalDrives_Idn" type="Int" identity="Yes" null="No" />
+	<column name="DriveType" type="Char(60)" displayName="Type" />
+	<column name="SerialNumber" type="Char(30)" displayName="Serial Number" />
+	<column name="VolumeLabel" type="Char(45)" displayName="Volume Label" />
+	<column name="FileSystem" type="Varchar(60)" displayName="File System" />
+	<column name="DriveLetter" type="Char(4)" displayName="Drive Letter" PK="Yes" />
+	<column name="StorageTotal" type="Int" displayName="Total Storage" displayMask="*10*%.1f MB" />
+	<column name="StorageAvail" type="Int" displayName="Available Storage" displayMask="*10*%.1f MB" />
+	<column name="FolderCnt" type="Int" displayName="Folder Count" displayMask="%d" />
+	<column name="FileCnt" type="Int" displayName="File Count" displayMask="%d" />
+	<column name="SCSI_ID" type="Char(10)" displayName="SCSI ID" />
+	<column name="BlockSize" type="Int" displayName="Block Size" displayMask="%d" />
+	<column name="LastBackupDate" type="DateTime" displayName="Last Backup Date" />
+	<column name="InitDate" type="DateTime" displayName="Initialization Date" />
+	<column name="Removable" type="Varchar(60)" displayName="Removable" />
+	<column name="Description" type="Char(60)" displayName="Description" />
+    <column name="MediaType" type="Int" displayName="Media Type" />
+  	<column name="RemotePath" type="Varchar(255)" displayName="Remote Path" />
+  	<column name="Fragmentation" type="Int" displayName="Fragmentation" />
+  	<column name="Recommendation" type="Varchar(255)" displayName="Recommendation" />
+	<primaryKey name="XPKLogicalDrives">
+		<primaryKeyColumn column="Computer_Idn" />
+		<primaryKeyColumn column="LogicalDrives_Idn" />
+	</primaryKey>
+	<index name="XIFLogicalDrivesId">
+		<indexColumn column="LogicalDrives_Idn" />
+	</index>
+</table>
 </schema>
