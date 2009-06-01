@@ -277,7 +277,7 @@ sub IsProcessRunning {
     my $objWMI = Win32::OLE->GetObject('winmgmts:\\\\' . $strComputer . '\\root\\cimv2');
     my $colProcesses = $objWMI->InstancesOf('Win32_Process');
     foreach my $objProcess (in $colProcesses) {
-        if ($objProcess->Name =~ $target) {
+        if ($objProcess->Name =~ m/$target/i) {
             return 1;
         }
     }
@@ -1990,7 +1990,7 @@ sub Schema_Click {
 
     Win32::Service::StopService( '', "LANDesk Inventory Server" )
       or &LogWarn("Could not stop Inventory Service.");
-    system($dbrepair);
+    $Main->ShellExecute("", $dbrepair, "", "", 10);
 
     # unset hourglass
     Win32::GUI::SetCursor($oldCursor);
