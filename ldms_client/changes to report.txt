@@ -1,4 +1,0 @@
-changed inventory reporting location of NetStat, Mapped Drives,  User Profile
-Size
-Added ability to model data for Netstat, User Profile Size
-
