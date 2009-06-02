@@ -643,6 +643,7 @@ sub Show_MainWindow {
     $form_FindProfileSize = $Main->AddCheckbox(
         -name    => "profilesize_field",
         -checked => $FindProfileSize,
+        -onClick => \&ProfileSize_Warning, 
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
@@ -1258,6 +1259,15 @@ sub btn_RegistryInfo_Click {
 ### open the Macintosh Window ###############################################
 sub btn_Macintosh_Click {
     &Show_MacWindow;
+    return 0;
+}
+
+### Warn that gathering profile sizes will take a long time #################
+sub ProfileSize_Warning {
+    my $checkedstate = $form_FindProfileSize->Checked();
+    if ($checkedstate) {
+        &LogWarn("Finding profile sizes may impact client performance.");
+    }
     return 0;
 }
 

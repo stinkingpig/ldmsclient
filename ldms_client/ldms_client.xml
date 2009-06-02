@@ -70,4 +70,37 @@
 		<indexColumn column="LogicalDrives_Idn" />
 	</index>
 </table>
+<table name="Battery" desc="" metaAdd="Yes" equiJoin="No" displayName="Battery" parentRelation="Computer" parent="Computer" tableType="1" image="battery.bmp" rollupIdentity="Yes" >
+	<column name="Computer_Idn" type="Int" null="No" />
+	<column name="Battery_Idn" type="Int" identity="Yes" null="No" />
+	<column name="Line" type="Varchar(30)" displayName="AC Line Status" />
+	<column name="Charge" type="Varchar(30)" displayName="Charge Status" />
+	<column name="BackupStatus" type="Varchar(30)" displayName="Backup Status" />
+	<column name="Chemistry" type="Varchar(30)" displayName="Chemistry" />
+	<column name="Seconds" type="Varchar(30)" displayName="Seconds Remaining" />
+	<column name="BackupSeconds" type="Varchar(30)" displayName="Backup Seconds Remaining" />
+	<column name="Voltage" type="Int" displayName="Voltage (mV)" />
+	<column name="Currentma" type="Int" displayName="Current (mA)" />
+	<column name="Life" type="Int" displayName="Life Percent" />
+	<column name="BackupLife" type="Int" displayName="Backup Life Percent" />
+	<column name="Temperature" type="Varchar(10)" displayName="Temperature (Celsius)" />
+	<column name="Batterytype" type="Varchar(30)" displayName="Type" />
+	<column name="Percentavail" type="Varchar(30)" displayName="Percent Available" />
+	<column name="Batterystate" type="Varchar(30)" displayName="State" />
+	<column name="BatterySerial" type="Varchar(30)" displayName="Serial Number" />
+	<column name="Manufacturer" type="Varchar(30)" displayName="Manufacturer" />
+	<column name="Devicename" type="Varchar(30)" displayName="Device Name" />
+	<column name="CycleCount" type="Varchar(30)" displayName="Cycle Count" />
+	<column name="Condition" type="Varchar(30)" displayName="Battery Condition" />
+	<column name="ManufactureDate" type="Varchar(30)" displayName="Manufacture Date" />
+	<column name="InstallDate" type="Varchar(30)" displayName="Install Date" />
+	<column name="Location" type="Varchar(50)" displayName="Location" />
+	<column name="Capacity" type="Varchar(50)" displayName="Capacity" />
+	<primaryKey name="XPKBattery">
+		<primaryKeyColumn column="Computer_Idn" />
+	</primaryKey>
+	<index name="XIFBatteryId">
+		<indexColumn column="Battery_Idn" />
+	</index>
+</table>
 </schema>

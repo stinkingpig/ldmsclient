@@ -495,21 +495,22 @@ sub ReadBattery {
         foreach my $Battery ( in $BatteryList) {
             $x++;
             if ($DEBUG) { &Log("ReadBattery: Processing battery $x"); }
-            if ( $Battery->Description ) {
-                $BatteryLabel = $Battery->Description;
-            }
-            else {
-                $BatteryLabel = "Portable Battery $x";
-            }
-            if ( $Battery->DeviceID ) {
-                $BatteryID = $Battery->DeviceID;
-                &ReportToCore(
-                    "Battery - $BatteryLabel - DeviceID = $BatteryID");
-            }
+            # DeviceID and Description have proven useless.
+            #if ( $Battery->Description ) {
+            #    $BatteryLabel = $Battery->Description;
+            #}
+            #else {
+            #    $BatteryLabel = "Portable Battery $x";
+            #}
+            #if ( $Battery->DeviceID ) {
+            #    $BatteryID = $Battery->DeviceID;
+            #    &ReportToCore(
+            #        "Battery - $BatteryLabel - DeviceID = $BatteryID");
+            #}
             if ( $Battery->Manufacturer ) {
                 $BatteryManufacturer = $Battery->Manufacturer;
                 &ReportToCore(
-"Battery - $BatteryLabel - Manufacturer = $BatteryManufacturer"
+                    "Battery - Manufacturer = $BatteryManufacturer"
                 );
             }
             if ( $Battery->ManufactureDate ) {
@@ -517,18 +518,18 @@ sub ReadBattery {
                 $BatteryDate = $Battery->ManufactureDate;
                 $BatteryDate = WMIDateStringToDate($BatteryDate);
                 &ReportToCore(
-                    "Battery - $BatteryLabel - ManufactureDate = $BatteryDate"
+                    "Battery - ManufactureDate = $BatteryDate"
                 );
             }
             if ( $Battery->InstallDate ) {
                 $BatteryDate = $Battery->InstallDate;
                 $BatteryDate = WMIDateStringToDate($BatteryDate);
                 &ReportToCore(
-                    "Battery - $BatteryLabel - InstallDate = $BatteryDate");
+                    "Battery - InstallDate = $BatteryDate");
             }
             if ( $Battery->Name ) {
                 $BatteryName = $Battery->Name;
-                &ReportToCore("Battery - $BatteryLabel - Name = $BatteryName");
+                &ReportToCore("Battery - DeviceName = $BatteryName");
             }
             if ( $Battery->Chemistry ) {
 
@@ -537,12 +538,12 @@ sub ReadBattery {
                 # Get a useful value for Chemistry
                 $Chemistry = &DecodeChemistry;
                 &ReportToCore(
-                    "Battery - $BatteryLabel - Chemistry = $Chemistry");
+                    "Battery - Chemistry = $Chemistry");
             }
             if ( $Battery->Location ) {
                 $BatteryLocation = $Battery->Location;
                 &ReportToCore(
-                    "Battery - $BatteryLabel - Location = $BatteryLocation");
+                    "Battery - Location = $BatteryLocation");
             }
             if ( $Battery->DesignCapacity ) {
                 if ( $Battery->FullChargeCapacity ) {
@@ -550,13 +551,13 @@ sub ReadBattery {
                       &FormatPercent( $Battery->FullChargeCapacity /
                           $Battery->DesignCapacity );
                     &ReportToCore(
-                        "Battery - $BatteryLabel - Capacity = $Capacity");
+                        "Battery - Capacity = $Capacity");
                 }
             }
             if ( $Battery->Status ) {
                 $BatteryStatus = $Battery->Status;
                 &ReportToCore(
-                    "Battery - $BatteryLabel - Status = $BatteryStatus");
+                    "Battery - Condition = $BatteryStatus");
             }
         }
     }
