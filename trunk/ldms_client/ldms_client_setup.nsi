@@ -5,7 +5,7 @@
 !include "MUI.nsh"
 SetCompressor /SOLID lzma
 SetCompress force
-!define VERSION "2.4.9" 
+!define VERSION "2.5.0" 
 Name "ldms_client version ${VERSION}"
 OutFile "ldms_client_setup.exe"
 InstallDir "$PROGRAMFILES\Monkeynoodle\ldms_client"
