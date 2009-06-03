@@ -52,7 +52,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.9";
+my $VERSION = "2.5.0";
 
 my (
     $ldmain,               $ldlogon,              $updatemessage,
@@ -106,7 +106,8 @@ my (
     $form_FindOST,         $MappedDrives,         $lbl_MappedDrives,
     $form_MappedDrives,    $CrashReport,          $lbl_CrashReport,
     $form_CrashReport,     $DefragNeeded,         $lbl_DefragNeeded,
-    $form_DefragNeeded,    $SchemaUpdated
+    $form_DefragNeeded,    $SchemaUpdated,        $SMARTStatus,
+    $form_SMARTStatus,     $lbl_SMARTStatus
 );
 
 # Prepare logging system
@@ -270,17 +271,19 @@ sub atoi {
 ### IsProcessRunning subroutine #############################################
 sub IsProcessRunning {
     my $target = shift;
-    if (! defined($target)) {
+    if ( !defined($target) ) {
         &LogDie("IsProcessRunning called without a target");
     }
     my $strComputer = '.';
-    my $objWMI = Win32::OLE->GetObject('winmgmts:\\\\' . $strComputer . '\\root\\cimv2');
+    my $objWMI =
+      Win32::OLE->GetObject( 'winmgmts:\\\\' . $strComputer . '\\root\\cimv2' );
     my $colProcesses = $objWMI->InstancesOf('Win32_Process');
-    foreach my $objProcess (in $colProcesses) {
-        if ($objProcess->Name =~ m/$target/i) {
+    foreach my $objProcess ( in $colProcesses) {
+        if ( $objProcess->Name =~ m/$target/i ) {
             return 1;
         }
     }
+
     # fall through to return zero if we didn't see the target
     return 0;
 }
@@ -402,6 +405,7 @@ sub ReadConfigFile {
     $CrashReport     = $Config->{_}->{CrashReport};
     $DefragNeeded    = $Config->{_}->{DefragNeeded};
     $SchemaUpdated   = $Config->{_}->{SchemaUpdated};
+    $SMARTStatus     = $Config->{_}->{SMARTStatus};
     if ($RegistryReader) {
 
         foreach my $index ( 1 .. 10 ) {
@@ -466,6 +470,7 @@ sub WriteConfigFile {
     $Config->{_}->{CrashReport}     = $CrashReport;
     $Config->{_}->{DefragNeeded}    = $DefragNeeded;
     $Config->{_}->{SchemaUpdated}   = $SchemaUpdated;
+    $Config->{_}->{SMARTStatus}     = $SMARTStatus;
     foreach my $index ( 1 .. 10 ) {
         $Config->{RegistryReader}->{$index} = $rr[$index];
     }
@@ -643,7 +648,7 @@ sub Show_MainWindow {
     $form_FindProfileSize = $Main->AddCheckbox(
         -name    => "profilesize_field",
         -checked => $FindProfileSize,
-        -onClick => \&ProfileSize_Warning, 
+        -onClick => \&ProfileSize_Warning,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
@@ -890,6 +895,23 @@ sub Show_MainWindow {
     );
 
     # End Defrag Needed row
+
+    # Begin SMART Status row
+    $form_SMARTStatus = $Main->AddCheckbox(
+        -name    => "smartstatus_field",
+        -checked => $SMARTStatus,
+        -tabstop => 1,
+        -pos     => [ $leftmargin, $nexthoriz += 25 ],
+        -size => [ 15, 20 ],
+    );
+    $lbl_SMARTStatus = $Main->AddLabel(
+        -name => "lbldefragneeded",
+        -text => "Report SMART status of hard drives?",
+        -pos  => [ $leftmargin + 20, $nexthoriz + 3 ],
+        -size => [ 300, 20 ],
+    );
+
+    # End SMART Status row
 
     # BEGIN GENERAL TAB #######
     $nexthoriz = 35;
@@ -1151,6 +1173,8 @@ sub MainTab_Hardware {
     Win32::GUI::Show( $Main->dccuwolbinary_field_Prompt()->{-handle} );
     $form_DefragNeeded->Show();
     $lbl_DefragNeeded->Show();
+    $form_SMARTStatus->Show();
+    $lbl_SMARTStatus->Show();
     return 0;
 }
 ###############################################################################
@@ -1233,6 +1257,8 @@ sub Main_Hide {
     Win32::GUI::Hide( $Main->dccuwolbinary_field_Prompt()->{-handle} );
     $form_DefragNeeded->Hide();
     $lbl_DefragNeeded->Hide();
+    $form_SMARTStatus->Hide();
+    $lbl_SMARTStatus->Hide();
 
     # General Tab
     $form_Macintosh->Hide();
@@ -1986,8 +2012,8 @@ sub Schema_Click {
     }
 
     # Launch dbrepair
-    if (&IsProcessRunning("dbrepair")) {
-        &LogWarn("DBRepair seems to be running already, please close it.")
+    if ( &IsProcessRunning("dbrepair") ) {
+        &LogWarn("DBRepair seems to be running already, please close it.");
     }
     $message = "Stop Inventory Service and launch dbrepair now?";
     $answer = Win32::GUI::MessageBox( 0, $message, "ldms_client_core", 4 );
@@ -1995,12 +2021,13 @@ sub Schema_Click {
         if ($DEBUG) { &Log("DEBUG: Schema update cancelled"); }
         return 0;
     }
+
     # set hourglass
     $oldCursor = &Win32::GUI::SetCursor($waitCursor);
 
     Win32::Service::StopService( '', "LANDesk Inventory Server" )
       or &LogWarn("Could not stop Inventory Service.");
-    $Main->ShellExecute("", $dbrepair, "", "", 10);
+    $Main->ShellExecute( "", $dbrepair, "", "", 10 );
 
     # unset hourglass
     Win32::GUI::SetCursor($oldCursor);
@@ -2044,7 +2071,7 @@ sub Schema_Click {
     # unset hourglass
     Win32::GUI::SetCursor($oldCursor);
     &LogWarn(
-        "Schema update finished, you should reboot your core to clear cache." );
+        "Schema update finished, you should reboot your core to clear cache.");
     $SchemaUpdated = 1;
     return 0;
 }
