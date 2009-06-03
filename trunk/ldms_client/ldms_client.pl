@@ -72,7 +72,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.4.9";
+my $VERSION = "2.5.0";
 
 my $usage = <<"EOD";
 
@@ -140,6 +140,8 @@ BEGIN {
 Readonly my $HKEY_LOCAL_MACHINE => 0x80000002;
 Readonly my $EPOCH              => 25569;
 Readonly my $SEC_PER_DAY        => 86400;
+use constant wbemFlagReturnImmediately => 0x10;
+use constant wbemFlagForwardOnly       => 0x20;
 my $objWMIService =
   Win32::OLE->GetObject( 'winmgmts:'
       . '{impersonationLevel=impersonate}!\\\\'
@@ -153,6 +155,8 @@ BEGIN {
     $lcid = GetUserDefaultLCID();
     Win32::OLE->Option( LCID => $lcid );
 }
+
+my $objWMIRoot = Win32::OLE->GetObject("winmgmts:\\\\$strComputer\\root\\WMI");
 
 # Get the config file
 my $configfile = &FindConfigFile;
@@ -202,6 +206,7 @@ my $MappedDrives    = $Config->{_}->{MappedDrives};
 my $CrashReport     = $Config->{_}->{CrashReport};
 my $DefragNeeded    = $Config->{_}->{DefragNeeded};
 my $SchemaUpdated   = $Config->{_}->{SchemaUpdated};
+my $SMARTStatus     = $Config->{_}->{SMARTStatus};
 
 # What HKCU keys will we look for?
 my @rr;
@@ -385,6 +390,9 @@ sub RunTests {
     if ($DefragNeeded) {
         &CallNeedsDefrag;
     }
+    if ($SMARTStatus) {
+        &CallSMARTStatus;
+    }
     return 0;
 }
 ### End of RunTests ###########################################################
@@ -458,6 +466,33 @@ sub CallCrashReport {
 }
 ###############################################################################
 
+### Get SMART Information  for hard drives ####################################
+sub CallSMARTStatus {
+    if ($DEBUG) { &Log("CallSMARTStatus looking for drive problems"); }
+    my $drivecount = 0;
+    my $colItems   = $objWMIRoot->ExecQuery(
+        "SELECT * FROM MSStorageDriver_FailurePredictStatus",
+        "WQL", wbemFlagReturnImmediately | wbemFlagForwardOnly );
+
+    foreach my $objItem ( in $colItems) {
+        if ($DEBUG) { &Log("CallSMARTStatus looking at drive $drivecount"); }
+        # zero is a valid (and indeed hoped for) value for this field
+        if ( defined($objItem->{PredictFailure}) ) {
+            &ReportToCore( "Mass Storage - Fixed Drive - (Number:$drivecount) "
+                  . "- PredictFailure = $objItem->{PredictFailure}" );
+        } 
+        # zero is a valid (and indeed hoped for) value for this field
+        if ( defined($objItem->{Reason}) ) {
+            &ReportToCore( "Mass Storage - Fixed Drive - (Number:$drivecount) "
+                  . "- Reason = $objItem->{Reason}" );
+        }
+        $drivecount++;
+    }
+    return 0;
+
+}
+### End of CallSMARTStatus sub ################################################
+
 ### Wrapper for getting Battery Information from two different WMI points #####
 sub CallBattery {
 
@@ -495,6 +530,7 @@ sub ReadBattery {
         foreach my $Battery ( in $BatteryList) {
             $x++;
             if ($DEBUG) { &Log("ReadBattery: Processing battery $x"); }
+
             # DeviceID and Description have proven useless.
             #if ( $Battery->Description ) {
             #    $BatteryLabel = $Battery->Description;
@@ -510,26 +546,21 @@ sub ReadBattery {
             if ( $Battery->Manufacturer ) {
                 $BatteryManufacturer = $Battery->Manufacturer;
                 &ReportToCore(
-                    "Battery - Manufacturer = $BatteryManufacturer"
-                );
+                    "Battery - Manufacturer = $BatteryManufacturer" );
             }
             if ( $Battery->ManufactureDate ) {
 
                 $BatteryDate = $Battery->ManufactureDate;
                 $BatteryDate = WMIDateStringToDate($BatteryDate);
-                &ReportToCore(
-                    "Battery - ManufactureDate = $BatteryDate"
-                );
+                &ReportToCore( "Battery - ManufactureDate = $BatteryDate" );
             }
             if ( $Battery->InstallDate ) {
                 $BatteryDate = $Battery->InstallDate;
                 $BatteryDate = WMIDateStringToDate($BatteryDate);
-                &ReportToCore(
-                    "Battery - InstallDate = $BatteryDate");
+                &ReportToCore("Battery - InstallDate = $BatteryDate");
             }
             if ( $Battery->Name ) {
-                $BatteryName = $Battery->Name;
-                &ReportToCore("Battery - DeviceName = $BatteryName");
+                &ReportToCore("Battery - DeviceName = " . $Battery->Name);
             }
             if ( $Battery->Chemistry ) {
 
@@ -537,27 +568,21 @@ sub ReadBattery {
 
                 # Get a useful value for Chemistry
                 $Chemistry = &DecodeChemistry;
-                &ReportToCore(
-                    "Battery - Chemistry = $Chemistry");
+                &ReportToCore("Battery - Chemistry = $Chemistry");
             }
             if ( $Battery->Location ) {
-                $BatteryLocation = $Battery->Location;
-                &ReportToCore(
-                    "Battery - Location = $BatteryLocation");
+                &ReportToCore("Battery - Location = " . $Battery->Location);
             }
             if ( $Battery->DesignCapacity ) {
                 if ( $Battery->FullChargeCapacity ) {
                     $Capacity =
                       &FormatPercent( $Battery->FullChargeCapacity /
                           $Battery->DesignCapacity );
-                    &ReportToCore(
-                        "Battery - Capacity = $Capacity");
+                    &ReportToCore("Battery - Capacity = $Capacity");
                 }
             }
             if ( $Battery->Status ) {
-                $BatteryStatus = $Battery->Status;
-                &ReportToCore(
-                    "Battery - Condition = $BatteryStatus");
+                &ReportToCore("Battery - Condition = " . $Battery->Status);
             }
         }
     }

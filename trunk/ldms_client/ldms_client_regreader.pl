@@ -21,7 +21,7 @@ local $SIG{__WARN__} = \&Carp::cluck;
 #############################################################################
 # Variables                                                                 #
 #############################################################################
-my ( $keyfile ) = shift;
+my ($keyfile) = shift;
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
 
 my $VERSION = "2.3.7";
@@ -52,7 +52,7 @@ my ( $value, $type, $KEYFILE, $key, $subkey );
 # Main Loop                                                                 #
 #############################################################################
 
-if (! $keyfile ) {
+if ( !$keyfile ) {
     print $usage;
     &LogDie("called without a keyfile");
 }
@@ -73,35 +73,35 @@ my $RegKey = $Registry->{"HKEY_CURRENT_USER/"}
 my $results;
 
 while (<$KEYFILE>) {
-  chomp;
-  ( $key, $subkey ) = split(/,/x);
-  if ( defined($key) && defined($subkey) ) {
-    if ($subkey =~ m/\(default\)/ix ) {
-      $subkey = "";
+    chomp;
+    ( $key, $subkey ) = split(/,/x);
+    if ( defined($key) && defined($subkey) ) {
+        if ( $subkey =~ m/\(default\)/ix ) {
+            $subkey = "";
+        }
+        $key    = "HKEY_CURRENT_USER/" . $key;
+        $RegKey = $Registry->{"$key"};
+        &Log("Reading $key,  key=$subkey");
+        if ($RegKey) {
+            ( $value, $type ) = $RegKey->GetValue($subkey)
+              or &LogWarn("Can't read $key $subkey key: $^E");
+            if ( defined($value) ) {
+                $value = &ParseRegistryValue( $type, $value );
+            }
+            else {
+                &Log("Nothing in $key $subkey");
+                $value = "NULL";
+            }
+            if ( $subkey eq "" ) { $subkey = "(Default)"; }
+            $results .= "$key,$subkey,$value\n";
+        }
     }
-    $key = "HKEY_CURRENT_USER/" . $key;
-    $RegKey = $Registry->{"$key"};
-    &Log("Reading $key,  key=$subkey");
-    if ( $RegKey ) {
-      ( $value, $type ) = $RegKey->GetValue($subkey)
-	or &LogWarn("Can't read $key $subkey key: $^E");
-      if ( defined($value) ) {
-	$value = &ParseRegistryValue( $type, $value );
-      }
-      else {
-	&Log("defined() returned false on ->$value<-");
-	$value = "NULL";
-      }
-      if ($subkey eq "") { $subkey = "(Default)"; }
-      $results .= "$key,$subkey,$value\n";
-    }
-  }
 }
-close($KEYFILE);
+close $KEYFILE;
 open( $KEYFILE, '>', "$keyfile" )
   or &LogDie("cannot open $keyfile for writing: $!");
 print $KEYFILE "$results";
-close($KEYFILE);
+close $KEYFILE;
 
 &Log("$prog $VERSION exiting.\n");
 exit 0;
@@ -147,7 +147,7 @@ sub LogDie {
 sub ParseRegistryValue {
     my ( $type, $value ) = @_;
     &Log("ParseRegistyValue got type=$type,value=$value");
-    $type=&RegistryType2String($type);
+    $type = &RegistryType2String($type);
     if (   $type eq "REG_SZ"
         or $type eq "REG_EXPAND_SZ"
         or $type eq "REG_MULTI_SZ" )
@@ -172,32 +172,32 @@ sub ParseRegistryValue {
 }
 ### ParseRegistryValue ######################################################
 
-
 sub RegistryType2String {
-  my $type= shift;
-  if ($type =~ m/REG_/) { 
-      return $type; 
-  }
-  my $typestr="UNKNOWN";
-  # from http://msdn.microsoft.com/en-us/library/ms724884(VS.85).aspx
-  my  %regtypes = (
-		   0, "REG_NONE",
-		   1,"REG_SZ",
-		   2,"REG_EXPAND_SZ",
-		   3,"REG_BINARY",
-		   4,"REG_DWORD",
-		   4,"REG_DWORD_LITTLE_ENDIAN",
-		   5,"REG_DWORD_BIG_ENDIAN",
-		   6,"REG_LINK",
-		   7,"REG_MULTI_SZ",
-		   8,"REG_RESOURCE_LIST",
-		   9,"REG_FULL_RESOURCE_DESCRIPTOR",
-		   10,"REG_RESOURCE_REQUIREMENTS_LIST",
-		   11,"REG_QWORD",
-		   11,"REG_QWORD_LITTLE_ENDIAN"
-		  );
+    my $type = shift;
+    if ( $type =~ m/REG_/ ) {
+        return $type;
+    }
+    my $typestr = "UNKNOWN";
 
-  $typestr=$regtypes{$type};
-  &Log("RegistryType2String for $type=$typestr");
-  return $typestr;
+    # from http://msdn.microsoft.com/en-us/library/ms724884(VS.85).aspx
+    my %regtypes = (
+        0,  "REG_NONE",
+        1,  "REG_SZ",
+        2,  "REG_EXPAND_SZ",
+        3,  "REG_BINARY",
+        4,  "REG_DWORD",
+        4,  "REG_DWORD_LITTLE_ENDIAN",
+        5,  "REG_DWORD_BIG_ENDIAN",
+        6,  "REG_LINK",
+        7,  "REG_MULTI_SZ",
+        8,  "REG_RESOURCE_LIST",
+        9,  "REG_FULL_RESOURCE_DESCRIPTOR",
+        10, "REG_RESOURCE_REQUIREMENTS_LIST",
+        11, "REG_QWORD",
+        11, "REG_QWORD_LITTLE_ENDIAN"
+    );
+
+    $typestr = $regtypes{$type};
+    &Log("RegistryType2String for $type=$typestr");
+    return $typestr;
 }
