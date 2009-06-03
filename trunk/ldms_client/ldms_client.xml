@@ -103,4 +103,42 @@
 		<indexColumn column="Battery_Idn" />
 	</index>
 </table>
+<table name="FixedDrives" desc="" metaAdd="Yes" equiJoin="No" displayName="Fixed Drive" parentRelation="Computer.Mass Storage" parent="Computer" tableType="1" image="HardDriv.bmp" rollupIdentity="Yes" >
+	<column name="Computer_Idn" type="Int" null="No" />
+	<column name="FixedDrives_Idn" type="Int" identity="Yes" null="No" />
+	<column name="DriveNo" type="Int" displayName="Number" PK="Yes" />
+	<column name="Heads" type="Int" displayName="Heads" />
+	<column name="Cylinders" type="Int" displayName="Cylinders" />
+	<column name="Sectors" type="Int" displayName="Sectors" />
+	<column name="VendorDesc" type="Char(60)" displayName="Vendor Description" />
+	<column name="SerialNumber" type="Char(60)" displayName="Serial Number" />
+	<column name="CMOSRamType" type="Char(45)" displayName="CMOS RAM Type" />
+	<column name="StorageTotal" type="Int" displayName="Total Storage" displayMask="*10*%.1f MB" />
+	<column name="BytesPerSect" type="Int" displayName="Bytes Per Sector" displayMask="%d" />
+	<column name="Model" type="Char(90)" displayName="Model" />
+	<column name="Interface" type="Char(30)" displayName="Interface Type" />
+	<column name="Manufacturer" type="Char(120)" displayName="Manufacturer" />
+	<column name="BusType" type="Varchar(30)" displayName="Bus Type" />
+	<column name="Capabilities" type="Int" displayName="Capabilities" />
+	<column name="Caption" type="Varchar(90)" displayName="Caption" />
+	<column name="DeviceID" type="Varchar(255)" displayName="Device ID" />
+	<column name="MediaType" type="Char(90)" displayName="Media Type" />
+	<column name="Name" type="Varchar(255)" displayName="Name" />
+	<column name="Partitions" type="Int" displayName="Partitions" />
+	<column name="TotalSectors" type="Int" displayName="Total Sectors" />
+	<column name="TotalTracks" type="Int" displayName="Total Tracks" />
+	<column name="TracksPerCylinder" type="Int" displayName="Tracks Per Cylinder" />
+	<column name="FirmwareRev" type="Char(30)" displayName="Firmware Revision" />
+	<column name="DiskIndex" type="Int" displayName="Disk Index" />
+	<column name="PredictFailure" type="Int" displayName="Failure Predicted" />
+	<column name="Reason" type="Int" displayName="Failure Reason" />
+	<primaryKey name="XPKFixedDrives">
+		<primaryKeyColumn column="Computer_Idn" />
+		<primaryKeyColumn column="FixedDrives_Idn" />
+	</primaryKey>
+	<index name="XIFFixedDrivesId">
+		<indexColumn column="FixedDrives_Idn" />
+	</index>
+</table>
+
 </schema>
