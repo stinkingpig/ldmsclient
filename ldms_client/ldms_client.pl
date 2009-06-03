@@ -343,15 +343,9 @@ sub RunTests {
     if ($PolicyList) {
         &CallPolicyList;
     }
-    if ($FindPST) {
-        &CallFindPST;
-    }
-    if ($FindOST) {
-        &CallFindOST;
-    }
-    if ($FindNSF) {
-        &CallFindNSF;
-    }
+    # Broken out separately for totalling
+    &RunEmailTests;
+
     if ($FindProfileSize) {
         &CallFindProfileSize;
     }
@@ -397,6 +391,27 @@ sub RunTests {
 }
 ### End of RunTests ###########################################################
 
+### RunEmailTests #############################################################
+sub RunEmailTests {
+    if ($FindPST) {
+        &CallFindPST;
+    }
+    if ($FindOST) {
+        &CallFindOST;
+    }
+    if ($FindNSF) {
+        &CallFindNSF;
+    }
+    if ($FindPST || $FindOST || $FindNSF) {
+        my $emailtotalsize = $totalpstsize + $totalostsize + $totalnsfsize;
+        &ReportToCore( "Custom Data - Email - Total Disk Size = "
+          . format_bytes($emailtotalsize) );
+        my $emailtotalcount = $totalpstcount + $totalostcount + $totalnsfcount;
+        &ReportToCore("Custom Data - Email - Total Number of Files = "
+        . $emailtotalcount);
+    }
+    return 0;
+}
 ### Ask WMI if this is Dell hardware we're on #################################
 sub IsDell {
     my $output = 'unknown';
@@ -1254,9 +1269,10 @@ sub CallFindPST {
             }
         }
     }
-    &ReportToCore( "Email - PST Files - Total Disk Size = "
+    &ReportToCore( "Custom Data - Email - PST Files - Total Disk Size = "
           . format_bytes($totalpstsize) );
-    &ReportToCore("Email - PST Files - Number of PST Files = $totalpstcount");
+    &ReportToCore("Custom Data - Email - PST Files - Number of PST Files = "
+        . $totalpstcount);
     return 0;
 }
 ### End of CallFindPST sub ####################################################
@@ -1297,9 +1313,10 @@ sub CallFindOST {
             }
         }
     }
-    &ReportToCore( "Email - OST Files - Total Disk Size = "
+    &ReportToCore( "Custom Data - Email - OST Files - Total Disk Size = "
           . format_bytes($totalostsize) );
-    &ReportToCore("Email - OST Files - Number of Files = $totalostcount");
+    &ReportToCore("Custom Data - Email - OST Files - Number of Files = "
+        . $totalostcount);
     return 0;
 }
 ### End of CallFindOST sub ####################################################
@@ -1337,9 +1354,10 @@ sub CallFindNSF {
             }
         }
     }
-    &ReportToCore( "Email - NSF Files - Total Disk Size = "
+    &ReportToCore( "Custom Data - Email - NSF Files - Total Disk Size = "
           . format_bytes($totalnsfsize) );
-    &ReportToCore("Email - NSF Files - Number of Files = $totalnsfcount");
+    &ReportToCore("Custom Data - Email - NSF Files - Number of Files = "
+        . $totalnsfcount);
     return 0;
 }
 ### End of CallFindNSF sub ####################################################
