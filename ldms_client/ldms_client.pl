@@ -137,9 +137,9 @@ BEGIN {
 }
 
 # Setup Windows OLE object for reading WMI
-Readonly my $HKEY_LOCAL_MACHINE => 0x80000002;
-Readonly my $EPOCH              => 25569;
-Readonly my $SEC_PER_DAY        => 86400;
+Readonly my $HKEY_LOCAL_MACHINE        => 0x80000002;
+Readonly my $EPOCH                     => 25569;
+Readonly my $SEC_PER_DAY               => 86400;
 use constant wbemFlagReturnImmediately => 0x10;
 use constant wbemFlagForwardOnly       => 0x20;
 my $objWMIService =
@@ -476,15 +476,37 @@ sub CallSMARTStatus {
 
     foreach my $objItem ( in $colItems) {
         if ($DEBUG) { &Log("CallSMARTStatus looking at drive $drivecount"); }
+
         # zero is a valid (and indeed hoped for) value for this field
-        if ( defined($objItem->{PredictFailure}) ) {
-            &ReportToCore( "Mass Storage - Fixed Drive - (Number:$drivecount) "
-                  . "- PredictFailure = $objItem->{PredictFailure}" );
-        } 
+        if ( defined( $objItem->{PredictFailure} ) ) {
+            if ($SchemaUpdated) {
+
+                # One-to-many style -- Requires data modelling at the core
+                &ReportToCore( "Mass Storage - Fixed Drive - "
+                      . "(Number:$drivecount) - Failure Predicted = "
+                      . $objItem->{PredictFailure} );
+            }
+            else {
+                &ReportToCore( "Mass Storage - Fixed Drive - $drivecount "
+                      . "- Failure Predicted = "
+                      . $objItem->{PredictFailure} );
+            }
+        }
+
         # zero is a valid (and indeed hoped for) value for this field
-        if ( defined($objItem->{Reason}) ) {
-            &ReportToCore( "Mass Storage - Fixed Drive - (Number:$drivecount) "
-                  . "- Reason = $objItem->{Reason}" );
+        if ( defined( $objItem->{Reason} ) ) {
+            if ($SchemaUpdated) {
+
+                # One-to-many style -- Requires data modelling at the core
+                &ReportToCore( "Mass Storage - Fixed Drive - "
+                      . "(Number:$drivecount) - Failure Reason = "
+                      . $objItem->{Reason} );
+            }
+            else {
+                &ReportToCore( "Mass Storage - Fixed Drive - $drivecount -"
+                      . " Failure Reason = "
+                      . $objItem->{Reason} );
+            }
         }
         $drivecount++;
     }
@@ -545,22 +567,21 @@ sub ReadBattery {
             #}
             if ( $Battery->Manufacturer ) {
                 $BatteryManufacturer = $Battery->Manufacturer;
-                &ReportToCore(
-                    "Battery - Manufacturer = $BatteryManufacturer" );
+                &ReportToCore("Battery - Manufacturer = $BatteryManufacturer");
             }
             if ( $Battery->ManufactureDate ) {
 
                 $BatteryDate = $Battery->ManufactureDate;
                 $BatteryDate = WMIDateStringToDate($BatteryDate);
-                &ReportToCore( "Battery - ManufactureDate = $BatteryDate" );
+                &ReportToCore("Battery - Manufacture Date = $BatteryDate");
             }
             if ( $Battery->InstallDate ) {
                 $BatteryDate = $Battery->InstallDate;
                 $BatteryDate = WMIDateStringToDate($BatteryDate);
-                &ReportToCore("Battery - InstallDate = $BatteryDate");
+                &ReportToCore("Battery - Install Date = $BatteryDate");
             }
             if ( $Battery->Name ) {
-                &ReportToCore("Battery - DeviceName = " . $Battery->Name);
+                &ReportToCore( "Battery - Device Name = " . $Battery->Name );
             }
             if ( $Battery->Chemistry ) {
 
@@ -571,7 +592,7 @@ sub ReadBattery {
                 &ReportToCore("Battery - Chemistry = $Chemistry");
             }
             if ( $Battery->Location ) {
-                &ReportToCore("Battery - Location = " . $Battery->Location);
+                &ReportToCore( "Battery - Location = " . $Battery->Location );
             }
             if ( $Battery->DesignCapacity ) {
                 if ( $Battery->FullChargeCapacity ) {
@@ -582,7 +603,7 @@ sub ReadBattery {
                 }
             }
             if ( $Battery->Status ) {
-                &ReportToCore("Battery - Condition = " . $Battery->Status);
+                &ReportToCore( "Battery - Condition = " . $Battery->Status );
             }
         }
     }
