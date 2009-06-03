@@ -279,7 +279,7 @@ sub IsProcessRunning {
       Win32::OLE->GetObject( 'winmgmts:\\\\' . $strComputer . '\\root\\cimv2' );
     my $colProcesses = $objWMI->InstancesOf('Win32_Process');
     foreach my $objProcess ( in $colProcesses) {
-        if ( $objProcess->Name =~ m/$target/i ) {
+        if ( $objProcess->Name =~ m/$target/ix ) {
             return 1;
         }
     }
@@ -301,7 +301,7 @@ sub IsUpdate {
     my $onlineversion;
     if ( defined($content) ) {
         my $myversion = $VERSION;
-        ## no critic
+        ## no critic (RequireExtendedFormatting)
         # Doesn't like /x
         $content =~ m{<p>latest version is ([\d.]+)};
         ## use critic
@@ -745,6 +745,7 @@ sub Show_MainWindow {
     $form_Produkey = $Main->AddCheckbox(
         -name    => "produkey_field",
         -checked => $Produkey,
+        -onClick => \&Produkey_Warning,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
@@ -883,6 +884,7 @@ sub Show_MainWindow {
     $form_DefragNeeded = $Main->AddCheckbox(
         -name    => "profilesize_field",
         -checked => $DefragNeeded,
+        -onClick => \&Defrag_Warning,
         -tabstop => 1,
         -pos     => [ $leftmargin, $nexthoriz += 25 ],
         -size => [ 15, 20 ],
@@ -1288,11 +1290,32 @@ sub btn_Macintosh_Click {
     return 0;
 }
 
+### Warn that Produkey will set off A/V #####################################
+sub Produkey_Warning {
+    my $checkedstate = $form_FindProfileSize->Checked();
+    if ($checkedstate) {
+        &LogWarn(
+"Many A/V products complain about Produkey; it may need to be whitelisted."
+        );
+    }
+    return 0;
+}
+
 ### Warn that gathering profile sizes will take a long time #################
 sub ProfileSize_Warning {
     my $checkedstate = $form_FindProfileSize->Checked();
     if ($checkedstate) {
         &LogWarn("Finding profile sizes may impact client performance.");
+    }
+    return 0;
+}
+
+### Warn that gathering defrag information will take a long time ############
+sub Defrag_Warning {
+    my $checkedstate = $form_DefragNeeded->Checked();
+    if ($checkedstate) {
+        &LogWarn(
+            "Finding defragmentation status may impact client performance.");
     }
     return 0;
 }
