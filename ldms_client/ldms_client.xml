@@ -140,5 +140,49 @@
 		<indexColumn column="FixedDrives_Idn" />
 	</index>
 </table>
-
+<table name="EmailPST" desc="" metaAdd="Yes" equiJoin="No" displayName="PST Files" parentRelation="Computer.Email" parent="Computer" tableType="1" image="Page.bmp" rollupIdentity="Yes">
+                <column name="Computer_Idn" type="Int" null="No" />
+                <column name="EmailPST_Idn" type="Int" identity="Yes" null="No" />
+                <column name="FileNumber" type="Int" null="No" displayName="Number" PK="Yes" />
+                <column name="FileName" type="Varchar(96)" null="No" displayName="File Name" />
+                <column name="FilePath" type="Varchar(255)" null="No" displayName="File Location" />
+                <column name="FileSize" type="Varchar(16)" displayName="File Size" />
+                <primaryKey name="XPK_EmailPST">
+                                <primaryKeyColumn column="Computer_Idn" />
+                                <primaryKeyColumn column="EmailPST_Idn" />
+                </primaryKey>
+                <foreignKey name="R_EmailPST" foreignTable="Computer">
+                                <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
+                </foreignKey>
+</table>
+<table name="EmailOST" desc="" metaAdd="Yes" equiJoin="No" displayName="OST Files" parentRelation="Computer.Email" parent="Computer" tableType="1" image="Page.bmp" rollupIdentity="Yes">
+                <column name="Computer_Idn" type="Int" null="No" />
+                <column name="EmailOST_Idn" type="Int" identity="Yes" null="No" />
+                <column name="FileNumber" type="Int" null="No" displayName="Number" PK="Yes" />
+                <column name="FileName" type="Varchar(96)" null="No" displayName="File Name" />
+                <column name="FilePath" type="Varchar(255)" null="No" displayName="File Location" />
+                <column name="FileSize" type="Varchar(16)" displayName="File Size" />
+                <primaryKey name="XPK_EmailOST">
+                                <primaryKeyColumn column="Computer_Idn" />
+                                <primaryKeyColumn column="EmailOST_Idn" />
+                </primaryKey>
+                <foreignKey name="R_EmailOST" foreignTable="Computer">
+                                <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
+                </foreignKey>
+</table>
+<table name="EmailNSF" desc="" metaAdd="Yes" equiJoin="No" displayName="NSF Files" parentRelation="Computer.Email" parent="Computer" tableType="1" image="Page.bmp" rollupIdentity="Yes">
+                <column name="Computer_Idn" type="Int" null="No" />
+                <column name="EmailNSF_Idn" type="Int" identity="Yes" null="No" />
+                <column name="FileNumber" type="Int" null="No" displayName="Number" PK="Yes" />
+                <column name="FileName" type="Varchar(96)" null="No" displayName="File Name" />
+                <column name="FilePath" type="Varchar(255)" null="No" displayName="File Location" />
+                <column name="FileSize" type="Varchar(16)" displayName="File Size" />
+                <primaryKey name="XPK_EmailNSF">
+                                <primaryKeyColumn column="Computer_Idn" />
+                                <primaryKeyColumn column="EmailNSF_Idn" />
+                </primaryKey>
+                <foreignKey name="R_EmailNSF" foreignTable="Computer">
+                                <foreignKeyColumn column="Computer_Idn" foreignColumn="Computer_Idn" />
+                </foreignKey>
+</table>
 </schema>

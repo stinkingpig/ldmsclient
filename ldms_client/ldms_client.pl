@@ -111,8 +111,8 @@ my $tempdir = Win32::GetShortPathName($localappdata);
 
 my $netstatcommand = 'netstat -an';
 
-my ( $totalpstsize,  $totalostsize,  $totalnsfsize )  = 0;
-my ( $totalpstcount, $totalostcount, $totalnsfcount ) = 0;
+my ( $totalpstsize,  $totalostsize,  $totalnsfsize )  = (0, 0, 0);
+my ( $totalpstcount, $totalostcount, $totalnsfcount ) = (0, 0, 0);
 
 # File handles I'll need
 my ( $FILE, $PSFILE, $PKDFILE, $RRTEMP, $RRLOG, $MDTEMP, $MDLOG, $SEMAPHORE );
@@ -1256,7 +1256,7 @@ sub CallFindPST {
     }
     &ReportToCore( "Email - PST Files - Total Disk Size = "
           . format_bytes($totalpstsize) );
-    &ReportToCore("Email - PST Files - Number of Files = $totalpstcount");
+    &ReportToCore("Email - PST Files - Number of PST Files = $totalpstcount");
     return 0;
 }
 ### End of CallFindPST sub ####################################################
@@ -1409,13 +1409,39 @@ sub ProcessPSTFile {
     if ( $extension ne ".pst" ) {
         return 0;
     }
-    &ReportToCore("Email - PST Files - $_ - File Location = $File::Find::name");
+    if ($SchemaUpdated) {
+
+        # One-to-many style -- Requires data modelling at the core
+        &ReportToCore(
+            "Email - PST Files - (Number:$totalpstcount) - File Name = $_"
+        );
+        &ReportToCore(
+"Email - PST Files - (Number:$totalpstcount) - File Location = "
+              . "$File::Find::name" );
+    }
+    else {
+
+        &ReportToCore("Email - PST Files - $totalpstcount - File Name = $_");
+        &ReportToCore(
+"Email - PST Files - $totalpstcount - File Location = $File::Find::name"
+        );
+    }
 
     # stat -- 7 is file size in bytes
     my $pstfilesize = ( stat($File::Find::name) )[7]
       or &LogWarn("stat failed on $File::Find::Name - $!");
-    &ReportToCore(
-        "Email - PST Files - $_ - File Size = " . format_bytes($pstfilesize) );
+    if ($SchemaUpdated) {
+
+        # One-to-many style -- Requires data modelling at the core
+        &ReportToCore(
+            "Email - PST Files - (Number:$totalpstcount) - File Size = "
+              . format_bytes($pstfilesize) );
+    }
+    else {
+
+        &ReportToCore( "Email - PST Files - $totalpstcount - File Size = "
+              . format_bytes($pstfilesize) );
+    }
     $totalpstsize += $pstfilesize;
     $totalpstcount++;
     return 0;
@@ -1432,13 +1458,39 @@ sub ProcessOSTFile {
     if ( $extension ne ".ost" ) {
         return 0;
     }
-    &ReportToCore("Email - OST Files - $_ - File Location = $File::Find::name");
+    if ($SchemaUpdated) {
+
+        # One-to-many style -- Requires data modelling at the core
+        &ReportToCore(
+            "Email - OST Files - (Number:$totalostcount) - File Name = $_"
+        );
+        &ReportToCore(
+"Email - OST Files - (Number:$totalostcount) - File Location = "
+              . "$File::Find::name" );
+    }
+    else {
+
+        &ReportToCore("Email - OST Files - $totalostcount - File Name = $_");
+        &ReportToCore(
+"Email - OST Files - $totalostcount - File Location = $File::Find::name"
+        );
+    }
 
     # stat -- 7 is file size in bytes
     my $ostfilesize = ( stat($File::Find::name) )[7]
       or &LogWarn("stat failed on $File::Find::Name - $!");
-    &ReportToCore(
-        "Email - OST Files - $_ - File Size = " . format_bytes($ostfilesize) );
+    if ($SchemaUpdated) {
+
+        # One-to-many style -- Requires data modelling at the core
+        &ReportToCore(
+            "Email - OST Files - (Number:$totalostcount) - File Size = "
+              . format_bytes($ostfilesize) );
+    }
+    else {
+
+        &ReportToCore( "Email - OST Files - $totalostcount - File Size = "
+              . format_bytes($ostfilesize) );
+    }
     $totalostsize += $ostfilesize;
     $totalostcount++;
     return 0;
@@ -1454,13 +1506,39 @@ sub ProcessNSFFile {
     if ( $extension ne ".nsf" ) {
         return 0;
     }
-    &ReportToCore("Email - NSF Files - $_ - File Location = $File::Find::name");
+    if ($SchemaUpdated) {
+
+        # One-to-many style -- Requires data modelling at the core
+        &ReportToCore(
+            "Email - NSF Files - (Number:$totalnsfcount) - File Name = $_"
+        );
+        &ReportToCore(
+"Email - NSF Files - (Number:$totalnsfcount) - File Location = "
+              . "$File::Find::name" );
+    }
+    else {
+
+        &ReportToCore("Email - NSF Files - $totalnsfcount - File Name = $_");
+        &ReportToCore(
+"Email - NSF Files - $totalnsfcount - File Location = $File::Find::name"
+        );
+    }
 
     # stat -- 7 is file size in bytes
     my $nsffilesize = ( stat($File::Find::name) )[7]
       or &LogWarn("stat failed on $File::Find::Name - $!");
-    &ReportToCore(
-        "Email - NSF Files - $_ - File Size = " . format_bytes($nsffilesize) );
+    if ($SchemaUpdated) {
+
+        # One-to-many style -- Requires data modelling at the core
+        &ReportToCore(
+            "Email - NSF Files - (Number:$totalnsfcount) - File Size = "
+              . format_bytes($nsffilesize) );
+    }
+    else {
+
+        &ReportToCore( "Email - NSF Files - $totalnsfcount - File Size = "
+              . format_bytes($nsffilesize) );
+    }
     $totalnsfsize += $nsffilesize;
     $totalnsfcount++;
     return 0;
