@@ -1292,7 +1292,7 @@ sub btn_Macintosh_Click {
 
 ### Warn that Produkey will set off A/V #####################################
 sub Produkey_Warning {
-    my $checkedstate = $form_FindProfileSize->Checked();
+    my $checkedstate = $form_Produkey->Checked();
     if ($checkedstate) {
         &LogWarn(
 "Many A/V products complain about Produkey; it may need to be whitelisted."
