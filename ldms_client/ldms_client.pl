@@ -6,6 +6,27 @@
 # http://www.droppedpackets.org/inventory-and-slm/ldms_client               #
 #############################################################################
 #
+# TODO - fill in Computer.UserEmail with an AD query. use startasuser to run
+# this as a subprogram:
+#//Get the username and domain information
+#string userName = Environment.UserName;
+#string domainName = Environment.UserDomainName;
+#// STILL HAVE TO LOOK UP THE DOMAIN CONTROLLER!!!!!!
+#//Set the correct format for the AD query and filter
+#string ldapQueryFormat = @"LDAP://{0}.com/DC={0},DC=com";
+#string queryFilterFormat = @"(&(samAccountName={0})(objectCategory=person)(objectClass=user))";
+#SearchResult result = null;
+#using(DirectoryEntry root = newDirectoryEntry(rootQuery))
+#{
+#    using(DirectorySearcher searcher = new DirectorySearcher(root))
+#    {
+#        searcher.Filter = searchFilter;
+#        SearchResultCollection results = searcher.FindAll();
+#
+#        result = (results.Count != 0) ? results[0] : null;
+#    }
+#} 
+
 # TODO - Currently attached SSID -- http://community.landesk.com/support/message/18826
 # TODO - Further aggression level to search all attached drives
 # TODO - Vista compatibility for policy, profile
