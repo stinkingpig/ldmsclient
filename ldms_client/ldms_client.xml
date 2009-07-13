@@ -31,7 +31,7 @@
                 <column name="Computer_Idn" type="Int" null="No" />
                 <column name="ProfileSize_Idn" type="Int" identity="Yes" null="No" />
                 <column name="UserName" type="Varchar(255)" null="No" displayName="User Name" PK="Yes" />
-                <column name="Size" type="Varchar(16)" displayName="Size" />
+                <column name="ProfileSize" type="Varchar(16)" displayName="Size" />
                 <primaryKey name="XPK_ProfileSize">
                                 <primaryKeyColumn column="Computer_Idn" />
                                 <primaryKeyColumn column="ProfileSize_Idn" />
