@@ -1230,8 +1230,9 @@ sub CallEnumerateGroups {
 
                 # Get each user name, returned as a comma-separated list
                 if ( $Member->Name ) {
-                    if ( $Member->Domain ) {
-                        $MemberName = $Member->Domain . "\\" . $Member->Name;
+                    # Domain prepending fixed by Stanislav Petrakov
+                    if ( $Member->Parent ) {
+                        $MemberName = substr($Member->Parent, 8) . "\\" . $Member->Name;
                     }
                     else {
                         $MemberName = $Member->Name;
