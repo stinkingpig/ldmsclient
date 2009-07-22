@@ -44,8 +44,8 @@ $oldCursor = &Win32::GUI::SetCursor($waitCursor);    #show hourglass ...
 # Variables                                                                 #
 #############################################################################
 my ( $DEBUG, $skipupdate, $help ) = '';
+Getopt::Long::Configure("long_prefix_pattern=(--|\/)", "prefix_pattern=(--|-|\/)");
 GetOptions(
-    '/',
     'debug'      => \$DEBUG,
     'skipupdate' => \$skipupdate,
     'help'       => \$help,
