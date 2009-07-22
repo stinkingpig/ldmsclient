@@ -25,7 +25,7 @@
 #
 #        result = (results.Count != 0) ? results[0] : null;
 #    }
-#} 
+#}
 
 # TODO - Currently attached SSID -- http://community.landesk.com/support/message/18826
 # TODO - Further aggression level to search all attached drives
@@ -86,14 +86,15 @@ local $SIG{__WARN__} = \&Carp::cluck;
 # Variables                                                                 #
 #############################################################################
 my ( $DEBUG, $help ) = '';
+Getopt::Long::Configure( "long_prefix_pattern=(--|\/)",
+    "prefix_pattern=(--|-|\/)" );
 GetOptions(
-    '/',
     'debug' => \$DEBUG,
     'help'  => \$help,
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.5.0";
+my $VERSION = "2.5.1";
 
 my $usage = <<"EOD";
 
@@ -132,8 +133,8 @@ my $tempdir = Win32::GetShortPathName($localappdata);
 
 my $netstatcommand = 'netstat -an';
 
-my ( $totalpstsize,  $totalostsize,  $totalnsfsize )  = (0, 0, 0);
-my ( $totalpstcount, $totalostcount, $totalnsfcount ) = (0, 0, 0);
+my ( $totalpstsize,  $totalostsize,  $totalnsfsize )  = ( 0, 0, 0 );
+my ( $totalpstcount, $totalostcount, $totalnsfcount ) = ( 0, 0, 0 );
 
 # File handles I'll need
 my ( $FILE, $PSFILE, $PKDFILE, $RRTEMP, $RRLOG, $MDTEMP, $MDLOG, $SEMAPHORE );
@@ -355,6 +356,35 @@ sub FindConfigFile {
 sub RunTests {
 
     # need to test if configuration file asked for each of these
+    # Broken out separately for totalling
+    &RunEmailTests;
+
+    if ($FindProfileSize) {
+       &CallFindProfileSize;
+    }
+    if ($RegistryReader) {
+                &CallRegistryReader;
+    }
+    if ($RegistryInfo) {
+              &CallRegistryInfo;
+    }
+    if ($MappedDrives) {
+       &CallMappedDrives;
+    }
+    if ($Produkey) {
+       &CallProdukey;
+    }
+    if ($DCCUWol) {
+        if (&IsDell) {
+                &CallDCCUWol;
+        }
+    }
+    if ($DefragNeeded) {
+          &CallNeedsDefrag;
+    }
+    if ($SID) {
+        &CallSID;
+    }
     if ($Battery) {
         &CallBattery;
     }
@@ -364,11 +394,11 @@ sub RunTests {
     if ($PolicyList) {
         &CallPolicyList;
     }
-    # Broken out separately for totalling
-    &RunEmailTests;
-
-    if ($FindProfileSize) {
-        &CallFindProfileSize;
+    if ($CrashReport) {
+        &CallCrashReport;
+    }
+    if ($SMARTStatus) {
+        &CallSMARTStatus;
     }
     if ($NICDuplex) {
         &CallNICDuplex;
@@ -379,35 +409,6 @@ sub RunTests {
     if ($EnumerateGroups) {
         &CallEnumerateGroups;
     }
-    if ($RegistryReader) {
-        &CallRegistryReader;
-    }
-    if ($RegistryInfo) {
-        &CallRegistryInfo;
-    }
-    if ($MappedDrives) {
-        &CallMappedDrives;
-    }
-    if ($Produkey) {
-        &CallProdukey;
-    }
-    if ($DCCUWol) {
-        if (&IsDell) {
-            &CallDCCUWol;
-        }
-    }
-    if ($SID) {
-        &CallSID;
-    }
-    if ($CrashReport) {
-        &CallCrashReport;
-    }
-    if ($DefragNeeded) {
-        &CallNeedsDefrag;
-    }
-    if ($SMARTStatus) {
-        &CallSMARTStatus;
-    }
     return 0;
 }
 ### End of RunTests ###########################################################
@@ -415,21 +416,21 @@ sub RunTests {
 ### RunEmailTests #############################################################
 sub RunEmailTests {
     if ($FindPST) {
-        &CallFindPST;
+       &CallFindPST;
     }
     if ($FindOST) {
-        &CallFindOST;
+            &CallFindOST;
     }
     if ($FindNSF) {
-        &CallFindNSF;
+       &CallFindNSF;
     }
-    if ($FindPST || $FindOST || $FindNSF) {
+    if ( $FindPST || $FindOST || $FindNSF ) {
         my $emailtotalsize = $totalpstsize + $totalostsize + $totalnsfsize;
         &ReportToCore( "Custom Data - Email - Total Disk Size = "
-          . format_bytes($emailtotalsize) );
+              . format_bytes($emailtotalsize) );
         my $emailtotalcount = $totalpstcount + $totalostcount + $totalnsfcount;
-        &ReportToCore("Custom Data - Email - Total Number of Files = "
-        . $emailtotalcount);
+        &ReportToCore( "Custom Data - Email - Total Number of Files = "
+              . $emailtotalcount );
     }
     return 0;
 }
@@ -1178,10 +1179,14 @@ sub ReadPreferredServers {
             my $line;
             while ( $line = <$PSFILE> ) {
                 $line =~ /\?(.*)$/x;
-                if ($1) { $psentry .= &Trim($1); }
+                if ($1) { 
+                    $psentry .= &Trim($1); 
+                    &ReportToCore(
+                        "LANDesk Management - Preferred Servers = $psentry"
+                    );
+                }
             }
             close $PSFILE;
-            &ReportToCore("LANDesk Management - Preferred Servers = $psentry");
         }
     }
     $psentries = "";
@@ -1230,9 +1235,11 @@ sub CallEnumerateGroups {
 
                 # Get each user name, returned as a comma-separated list
                 if ( $Member->Name ) {
+
                     # Domain prepending fixed by Stanislav Petrakov
                     if ( $Member->Parent ) {
-                        $MemberName = substr($Member->Parent, 8) . "\\" . $Member->Name;
+                        $MemberName =
+                          substr( $Member->Parent, 8 ) . "\\" . $Member->Name;
                     }
                     else {
                         $MemberName = $Member->Name;
@@ -1293,8 +1300,8 @@ sub CallFindPST {
     }
     &ReportToCore( "Custom Data - Email - PST Files - Total Disk Size = "
           . format_bytes($totalpstsize) );
-    &ReportToCore("Custom Data - Email - PST Files - Number of PST Files = "
-        . $totalpstcount);
+    &ReportToCore( "Custom Data - Email - PST Files - Number of PST Files = "
+          . $totalpstcount );
     return 0;
 }
 ### End of CallFindPST sub ####################################################
@@ -1337,8 +1344,8 @@ sub CallFindOST {
     }
     &ReportToCore( "Custom Data - Email - OST Files - Total Disk Size = "
           . format_bytes($totalostsize) );
-    &ReportToCore("Custom Data - Email - OST Files - Number of Files = "
-        . $totalostcount);
+    &ReportToCore( "Custom Data - Email - OST Files - Number of Files = "
+          . $totalostcount );
     return 0;
 }
 ### End of CallFindOST sub ####################################################
@@ -1378,8 +1385,8 @@ sub CallFindNSF {
     }
     &ReportToCore( "Custom Data - Email - NSF Files - Total Disk Size = "
           . format_bytes($totalnsfsize) );
-    &ReportToCore("Custom Data - Email - NSF Files - Number of Files = "
-        . $totalnsfcount);
+    &ReportToCore( "Custom Data - Email - NSF Files - Number of Files = "
+          . $totalnsfcount );
     return 0;
 }
 ### End of CallFindNSF sub ####################################################
@@ -1432,8 +1439,8 @@ sub CallFindProfileSize {
     }
     else {
         &Log( "FindProfileSize: skipped user profile search, last one occurred"
-              . " at $last_ups and it is now "
-              . time() );
+              . " at " . localtime($last_ups) . " and it is now "
+              . localtime() );
         return 0;
     }
 }
@@ -1453,10 +1460,9 @@ sub ProcessPSTFile {
 
         # One-to-many style -- Requires data modelling at the core
         &ReportToCore(
-            "Email - PST Files - (Number:$totalpstcount) - File Name = $_"
-        );
+            "Email - PST Files - (Number:$totalpstcount) - File Name = $_" );
         &ReportToCore(
-"Email - PST Files - (Number:$totalpstcount) - File Location = "
+                "Email - PST Files - (Number:$totalpstcount) - File Location = "
               . "$File::Find::name" );
     }
     else {
@@ -1502,10 +1508,9 @@ sub ProcessOSTFile {
 
         # One-to-many style -- Requires data modelling at the core
         &ReportToCore(
-            "Email - OST Files - (Number:$totalostcount) - File Name = $_"
-        );
+            "Email - OST Files - (Number:$totalostcount) - File Name = $_" );
         &ReportToCore(
-"Email - OST Files - (Number:$totalostcount) - File Location = "
+                "Email - OST Files - (Number:$totalostcount) - File Location = "
               . "$File::Find::name" );
     }
     else {
@@ -1550,10 +1555,9 @@ sub ProcessNSFFile {
 
         # One-to-many style -- Requires data modelling at the core
         &ReportToCore(
-            "Email - NSF Files - (Number:$totalnsfcount) - File Name = $_"
-        );
+            "Email - NSF Files - (Number:$totalnsfcount) - File Name = $_" );
         &ReportToCore(
-"Email - NSF Files - (Number:$totalnsfcount) - File Location = "
+                "Email - NSF Files - (Number:$totalnsfcount) - File Location = "
               . "$File::Find::name" );
     }
     else {
