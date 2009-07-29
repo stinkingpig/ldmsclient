@@ -4,7 +4,7 @@ Packer: C:\Program Files\ActiveState Perl Dev Kit 8.0.1\bin\perlapp.exe
 Script: ldms_client_core.pl
 Cwd: C:\Documents and Settings\Jack Coates\My Documents\code\ldms_client
 Clean: 0
-Date: 2009-06-02 22:04:51
+Date: 2009-07-28 17:08:37
 Debug: 
 Dependent: 0
 Dyndll: 0
@@ -22,12 +22,12 @@ Verbose: 0
 Version-Comments: Monkeynoodle: It's A Scientific Venture!
 Version-CompanyName: Monkeynoodle.Org
 Version-FileDescription: Configures ldms_client, a tool for gathering inventory extensions for LANDesk Management Suite
-Version-FileVersion: 2.5.0
+Version-FileVersion: 2.5.1
 Version-InternalName: ldms_client_core
 Version-LegalCopyright: (c) 2008, Jack Coates <jack@monkeynoodle.org>
 Version-LegalTrademarks: 
 Version-OriginalFilename: ldms_client_core
 Version-ProductName: ldms_client_core
-Version-ProductVersion: 2.5.0
+Version-ProductVersion: 2.5.1
 Warnings: 0
 Xclude: 0

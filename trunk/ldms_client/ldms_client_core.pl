@@ -52,7 +52,7 @@ GetOptions(
 );
 
 ( my $prog = $0 ) =~ s/^.*[\\\/]//x;
-my $VERSION = "2.5.0";
+my $VERSION = "2.5.1";
 
 my (
     $ldmain,               $ldlogon,              $updatemessage,

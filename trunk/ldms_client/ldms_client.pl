@@ -257,7 +257,7 @@ open( $FILE, '>', "$file" ) or croak("Can't open $file - $!");
 close $FILE;
 
 # How about if I log my own version?
-&ReportToCore("Custom Data - $prog - version = $VERSION");
+&ReportToCore("Custom Data - ldms_client - version = $VERSION");
 
 # Get my info
 &RunTests;
@@ -1382,6 +1382,12 @@ sub CallFindNSF {
                 find( \&ProcessNSFFile, $user );
             }
         }
+        # Might as well look in the old default location too, seems that some
+        # companies are still using it.
+        my ( undef, $oldhome, undef ) = fileparse( $WINDIR, qr{\..*}x );
+        $oldhome .= "Lotus/Notes";
+        if ($DEBUG) { &Log("Looking for NSF files under $oldhome"); }
+        find( \&ProcessNSFFile, $oldhome );
     }
     &ReportToCore( "Custom Data - Email - NSF Files - Total Disk Size = "
           . format_bytes($totalnsfsize) );
