@@ -29,7 +29,6 @@
 
 # TODO - Currently attached SSID -- http://community.landesk.com/support/message/18826
 # TODO - Further aggression level to search all attached drives
-# TODO - Vista compatibility for policy, profile
 # TODO - Recursive registry search for mounted PSTs. The walk begins at
 # HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging
 # Subsystem\Profiles\Default Outlook Profile (or one level up) and we need to look
